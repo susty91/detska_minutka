@@ -260,6 +260,36 @@
     }
     main{justify-content:center;gap:5px}
     @media(max-width:780px){main{justify-content:space-evenly}}
+
+    .clock{display:block}
+    /* Ilustrované motivy: vyplnit dostupný prostor bez změny proporcí. */
+    .shell{height:100dvh;min-height:100dvh;max-height:100dvh;overflow:hidden}
+    .compact-header{flex:0 0 auto;padding-top:6px;padding-bottom:2px}
+    main{flex:1 1 auto;min-height:0;justify-content:center!important;gap:0!important;padding:0 0 2px}
+    main .clock-stage{flex:1 1 auto;min-height:0;align-items:center;justify-content:center;padding-right:0}
+    main .clock-stage .clock-frame{
+      width:min(calc(100vw - 12px),calc((100dvh - 76px) * 0.8375));
+      max-width:none;
+      aspect-ratio:670 / 800;
+      flex:0 0 auto;
+    }
+    /* Duhový ciferník ponechat čtvercový; po straně je jeho měřítko. */
+    body.is-rainbow main .clock-stage{padding-right:clamp(78px,10vw,120px)}
+    body.is-rainbow main .clock-stage .clock-frame{
+      width:min(calc(100vw - 126px),calc(100dvh - 82px));
+      aspect-ratio:1;
+    }
+    @media(max-width:780px){
+      .compact-header{padding:6px 5px 2px}
+      main .clock-stage .clock-frame{width:min(calc(100vw - 10px),calc((100dvh - 66px) * 0.8375))}
+      body.is-rainbow main .clock-stage{padding-right:82px}
+      body.is-rainbow main .clock-stage .clock-frame{width:min(calc(100vw - 95px),calc(100dvh - 68px))}
+    }
+    @media(max-width:450px){
+      main .clock-stage .clock-frame{width:min(calc(100vw - 8px),calc((100dvh - 61px) * 0.8375))}
+      body.is-rainbow main .clock-stage{padding-right:71px}
+      body.is-rainbow main .clock-stage .clock-frame{width:min(calc(100vw - 78px),calc(100dvh - 66px))}
+    }
   </style>
 </head>
 <body>
@@ -368,7 +398,7 @@
           <text x="400" y="458" text-anchor="middle" class="dial-message" id="clockMessage">a duha kouzlí dál ✨</text>
           <g opacity=".7" aria-hidden="true"><use href="#sparkle" x="330" y="475" width="18" height="18"/><use href="#sparkle" x="452" y="276" width="14" height="14"/></g>
         </svg>
-        <svg class="clock dino-scene" id="dinoClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Dinosaurus se během odpočítávání vybarvuje od nohou až po hlavu." hidden>
+        <svg class="clock dino-scene" id="dinoClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Dinosaurus se během odpočítávání vybarvuje od nohou až po hlavu." hidden>
           <defs>
             <radialGradient id="dinoHalo"><stop stop-color="#f1fff8"/><stop offset="1" stop-color="#e6f5f2"/></radialGradient>
             <linearGradient id="dinoGreen" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#a2efbf"/><stop offset="1" stop-color="#52bea1"/></linearGradient>
@@ -425,7 +455,7 @@
           <text x="400" y="760" class="dino-time" id="dinoTime">20:00</text>
           <text x="400" y="793" class="dino-progress" id="dinoProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock unicorn-scene" id="unicornClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Jednorožec se během odpočítávání vybarvuje od kopýtek až po roh." hidden>
+        <svg class="clock unicorn-scene" id="unicornClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Jednorožec se během odpočítávání vybarvuje od kopýtek až po roh." hidden>
           <defs>
             <radialGradient id="unicornHalo"><stop stop-color="#fff6fd"/><stop offset="1" stop-color="#f3eafe"/></radialGradient>
             <linearGradient id="unicornCoat" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#e8d9fa"/></linearGradient>
@@ -487,7 +517,7 @@
           <text x="400" y="760" class="unicorn-time" id="unicornTime">20:00</text>
           <text x="400" y="793" class="unicorn-progress" id="unicornProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock rocket-scene" id="rocketClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Raketa se během odpočítávání vybarvuje od plamenů až po špičku a letí vesmírem." hidden>
+        <svg class="clock rocket-scene" id="rocketClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Raketa se během odpočítávání vybarvuje od plamenů až po špičku a letí vesmírem." hidden>
           <defs>
             <radialGradient id="rocketHalo" cx="50%" cy="36%" r="65%"><stop stop-color="#f8f7ff"/><stop offset="1" stop-color="#e7ebff"/></radialGradient>
             <linearGradient id="rocketBodyFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fefeff"/><stop offset="1" stop-color="#dfe4ff"/></linearGradient>
@@ -524,7 +554,7 @@
           <text x="400" y="760" class="rocket-time" id="rocketTime">20:00</text>
           <text x="400" y="793" class="rocket-progress" id="rocketProgress">0 % připraveno</text>
         </svg>
-        <svg class="clock digger-scene" id="diggerClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Bagr se během odpočítávání postupně vybarvuje od pásů až po rameno a lžíci." hidden>
+        <svg class="clock digger-scene" id="diggerClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Bagr se během odpočítávání postupně vybarvuje od pásů až po rameno a lžíci." hidden>
           <defs>
             <radialGradient id="diggerHalo" cx="50%" cy="36%" r="65%"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#fff2d8"/></radialGradient>
             <linearGradient id="diggerYellow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd96a"/><stop offset="1" stop-color="#f0a81f"/></linearGradient>
@@ -576,7 +606,7 @@
           <text x="400" y="760" class="digger-time" id="diggerTime">20:00</text>
           <text x="400" y="793" class="digger-progress" id="diggerProgress">0 % vykopáno</text>
         </svg>
-        <svg class="clock giraffe-scene" id="giraffeClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Žirafa se během odpočítávání vybarvuje od nohou až po hlavu." hidden>
+        <svg class="clock giraffe-scene" id="giraffeClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Žirafa se během odpočítávání vybarvuje od nohou až po hlavu." hidden>
           <defs>
             <radialGradient id="giraffeHalo" cx="50%" cy="36%" r="65%"><stop stop-color="#fff9ef"/><stop offset="1" stop-color="#ffefd9"/></radialGradient>
             <linearGradient id="giraffeBodyFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd388"/><stop offset="1" stop-color="#f1aa56"/></linearGradient>
@@ -634,7 +664,7 @@
           <text x="400" y="760" class="giraffe-time" id="giraffeTime">20:00</text>
           <text x="400" y="793" class="giraffe-progress" id="giraffeProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock car-scene" id="carClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Autíčko se při odpočítávání postupně vybarvuje." hidden>
+        <svg class="clock car-scene" id="carClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Autíčko se při odpočítávání postupně vybarvuje." hidden>
           <defs>
             <radialGradient id="carHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#fff8f4"/><stop offset="1" stop-color="#ffecea"/></radialGradient>
             <linearGradient id="carPaint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffa0a0"/><stop offset="1" stop-color="#fb656f"/></linearGradient>
@@ -677,7 +707,7 @@
           <text x="400" y="760" class="car-time" id="carTime">20:00</text>
           <text x="400" y="793" class="car-progress" id="carProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock tractor-scene" id="tractorClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Traktor se při odpočítávání postupně vybarvuje." hidden>
+        <svg class="clock tractor-scene" id="tractorClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Traktor se při odpočítávání postupně vybarvuje." hidden>
           <defs>
             <radialGradient id="tractorHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#f4fff5"/><stop offset="1" stop-color="#e7f6e3"/></radialGradient>
             <linearGradient id="tractorGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#aee5af"/><stop offset="1" stop-color="#64b88a"/></linearGradient>
@@ -721,7 +751,7 @@
           <text x="400" y="760" class="tractor-time" id="tractorTime">20:00</text>
           <text x="400" y="793" class="tractor-progress" id="tractorProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock firetruck-scene" id="firetruckClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Hasiči se při odpočítávání postupně vybarvuje." hidden>
+        <svg class="clock firetruck-scene" id="firetruckClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Hasiči se při odpočítávání postupně vybarvuje." hidden>
           <defs>
             <radialGradient id="firetruckHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#fff7f3"/><stop offset="1" stop-color="#fff0e7"/></radialGradient>
             <linearGradient id="fireRed" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9c9c"/><stop offset="1" stop-color="#ed626b"/></linearGradient>
@@ -766,7 +796,7 @@
           <text x="400" y="760" class="firetruck-time" id="firetruckTime">20:00</text>
           <text x="400" y="793" class="firetruck-progress" id="firetruckProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock ocean-scene" id="oceanClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Mořský svět se při odpočítávání postupně vybarvuje." hidden>
+        <svg class="clock ocean-scene" id="oceanClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Mořský svět se při odpočítávání postupně vybarvuje." hidden>
           <defs>
             <radialGradient id="oceanHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#f2fcff"/><stop offset="1" stop-color="#dff4ff"/></radialGradient>
             <linearGradient id="oceanBlue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a5e6fa"/><stop offset="1" stop-color="#62b7de"/></linearGradient>
@@ -811,7 +841,7 @@
           <text x="400" y="760" class="ocean-time" id="oceanTime">20:00</text>
           <text x="400" y="793" class="ocean-progress" id="oceanProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock princess-scene" id="princessClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Princezna se při odpočítávání postupně vybarvuje." hidden>
+        <svg class="clock princess-scene" id="princessClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Princezna se při odpočítávání postupně vybarvuje." hidden>
           <defs>
             <radialGradient id="princessHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#fff5fb"/><stop offset="1" stop-color="#f8eafc"/></radialGradient>
             <linearGradient id="princessPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc4df"/><stop offset="1" stop-color="#dba8eb"/></linearGradient>
@@ -848,7 +878,7 @@
           <text x="400" y="760" class="princess-time" id="princessTime">20:00</text>
           <text x="400" y="793" class="princess-progress" id="princessProgress">0 % vybarveno</text>
         </svg>
-        <svg class="clock knight-scene" id="knightClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Rytíř se při odpočítávání postupně vybarvuje." hidden>
+        <svg class="clock knight-scene" id="knightClock" xmlns="http://www.w3.org/2000/svg" viewBox="65 0 670 800" role="img" aria-label="Rytíř se při odpočítávání postupně vybarvuje." hidden>
           <defs>
             <radialGradient id="knightHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#f9fbff"/><stop offset="1" stop-color="#edf2ff"/></radialGradient>
             <linearGradient id="knightArmor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6e1fa"/><stop offset="1" stop-color="#98afd8"/></linearGradient>
@@ -1140,6 +1170,7 @@
   function setTheme(next){
     theme=['rainbow',...Object.keys(sceneThemes)].includes(next)?next:'rainbow';
     Object.keys(sceneThemes).forEach(name=>document.body.classList.toggle(`is-${name}`,theme===name));
+    document.body.classList.toggle('is-rainbow',theme==='rainbow');
     $('clock').toggleAttribute('hidden',theme!=='rainbow');
     Object.entries(sceneThemes).forEach(([name,scene])=>scene.svg.toggleAttribute('hidden',theme!==name));
     const chosen = allThemes.find(item=>item.id===theme) || allThemes[0];
