@@ -32,7 +32,7 @@ Favicon je v souboru `favicon.svg`.
 ## Výkon a úsporný režim
 
 - Animace mění pouze **právě zobrazený motiv**; skryté SVG obrázky se během odpočtu nepřekreslují. Duhový ciferník se aktualizuje pouze při zvoleném motivu Duha.
-- Běžný režim překresluje maximálně **5× za sekundu** (interval 200 ms). Přesnost odpočítávání se počítá podle skutečného času, takže nesouvisí s frekvencí vykreslování. Zvuk na konci zůstává řízen samostatným časovačem.
+- Běžný režim překresluje přibližně **24× za sekundu** (interval 42 ms). Přesnost odpočítávání se počítá podle skutečného času, takže nesouvisí s frekvencí vykreslování. Zvuk na konci zůstává řízen samostatným časovačem.
 - V burger menu je **Úsporný režim** (ukládá se lokálně do prohlížeče). Ten sníží překreslování na **1× za sekundu**, vypne některé náročné grafické efekty a **nevyžaduje udržování displeje rozsvíceného**.
 - **Pozor:** pokud telefon v úsporném režimu zamkne displej nebo uspí prohlížeč, nemusí na iPhonu zaznít konečný zvoneček včas. Pro spolehlivější vizuální odpočítávání ponechte běžný režim.
 - Při pauze se čas aktualizuje podle okamžiku stisku, nikoli podle posledního vykresleného snímku.
@@ -40,3 +40,9 @@ Favicon je v souboru `favicon.svg`.
 ## Ikona na ploše telefonu
 
 Na iPhonu slouží `apple-touch-icon.png` (180 × 180 px), na Androidu `manifest.webmanifest` spolu s `icon-192.png` a `icon-512.png`. Favicon pro záložku prohlížeče je `favicon.svg`. Pokud už máte na ploše starého zástupce s písmenem D, odstraňte jej a po nasazení aktuální verze znovu použijte **Přidat na plochu**.
+
+## Offline provoz a posuvník času
+
+Po prvním otevření **s internetem** se přes `sw.js` (service worker) uloží základní stránka, SVG motivy zabudované v HTML, ikony a manifest. Po dokončení prvotního uložení lze minutku spouštět bez internetu, včetně zástupce na ploše telefonu. Nevyžaduje backend. Na iOS může být cache časem automaticky odstraněna, proto je vhodné aplikaci občas otevřít online.
+
+Spodní posuvník je odsazený od levého okraje. Dotykový výpočet respektuje skutečnou polohu středu jezdce a umožňuje nastavit i **1 minutu** bez sjíždění prstu ze skla. Běžný režim má nyní obnovování na **24× za sekundu**; volitelný úsporný režim nadále **1× za sekundu**.

@@ -372,6 +372,11 @@
     body.eco-mode .clock-frame,body.eco-mode .clock,body.eco-mode .moving-unicorn,
     body.eco-mode .unicorn-drop svg{filter:none!important}
     body.eco-mode .scale-panel,body.eco-mode .theme-modal{backdrop-filter:none!important}
+
+    /* Posuvník je odsazený od kraje, aby se 1. minuta nastavovala palcem. */
+    .compact-header .settings{padding-left:clamp(21px,5vw,29px)}
+    .compact-header #duration{touch-action:none}
+    @media(max-width:355px){.compact-header .settings{padding-left:21px}}
   </style>
 </head>
 <body>
@@ -1147,7 +1152,7 @@
   const palette = ['#f18b9f','#ffb874','#ffdd75','#9ddc8e','#6ed5c7','#7dbce8','#b8a0ed'];
   const bands = [];
   let selected = 20, dialMax = 60, scaleCustomized = false, remainingMs = 20 * 60000, running = false, finishAt = 0, frame = 0, alarmTimer = 0, muted = false, lastShown = -1, finishTimeout, audioCtx = null;
-  const NORMAL_FRAME_MS=200, ECO_FRAME_MS=1000;
+  const NORMAL_FRAME_MS=1000/24, ECO_FRAME_MS=1000;
   let ecoMode=false;
   try{ecoMode=localStorage.getItem('detska-minutka-eco-v1')==='1';}catch(_){/* Storage unavailable. */}
   document.body.classList.toggle('eco-mode',ecoMode);
@@ -1386,8 +1391,11 @@
   function setFromHorizontalPoint(clientX){
     const r=slider.getBoundingClientRect();
     if(!r.width)return;
-    const x=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
-    const next=Math.round(1+x*(MAX_MIN-1));
+    // Krajní hodnoty odpovídají středům jezdce, nikoli okrajům inputu.
+    const thumbRadius=12.5;
+    const usableWidth=Math.max(1,r.width-2*thumbRadius);
+    const fraction=Math.max(0,Math.min(1,(clientX-r.left-thumbRadius)/usableWidth));
+    const next=Math.round(1+fraction*(MAX_MIN-1));
     if(next!==selected)setMinutes(next);
   }
   let horizontalDrag=false;
@@ -1578,6 +1586,14 @@
   setMinutes(20);
   setTheme('dino');
 })();
+  // První návštěva s internetem připraví statickou aplikaci pro offline použití.
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(err=>{
+        console.warn('Offline režim nelze aktivovat:',err);
+      });
+    });
+  }
 </script>
 </body>
 </html>
