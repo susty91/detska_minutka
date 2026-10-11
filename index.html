@@ -365,6 +365,13 @@
       .scale-range{height:10px}
       body.is-rainbow main .clock-stage .clock-frame{width:min(calc(100vw - 8px),calc(100dvh - 123px))}
     }
+    /* Náročné stíny na velkých SVG v běžném režimu nepotřebujeme. */
+    .dino-scene,.unicorn-scene,.rocket-scene,.digger-scene,.giraffe-scene,
+    .car-scene,.tractor-scene,.firetruck-scene,.ocean-scene,.princess-scene,.knight-scene{filter:none}
+    .main-menu .eco-help{font-size:11px;line-height:1.45;color:#8e86a1;padding:0 13px 9px 46px}
+    body.eco-mode .clock-frame,body.eco-mode .clock,body.eco-mode .moving-unicorn,
+    body.eco-mode .unicorn-drop svg{filter:none!important}
+    body.eco-mode .scale-panel,body.eco-mode .theme-modal{backdrop-filter:none!important}
   </style>
 </head>
 <body>
@@ -995,6 +1002,8 @@
             <button id="themeTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeModal"><span id="triggerEmoji" aria-hidden="true">🦕</span> <span id="triggerLabel">Motivy · Dinosaurus</span> <span aria-hidden="true">›</span></button>
             <div class="menu-divider"></div>
             <button id="soundBtn" type="button" aria-label="Vypnout zvuk"><span id="soundIcon" aria-hidden="true">🔊</span> <span id="soundText">Zvuk zapnutý</span></button>
+            <button id="ecoBtn" type="button" role="switch" aria-checked="false" aria-describedby="ecoHelp"><span id="ecoIcon" aria-hidden="true">🔋</span><span id="ecoText">Úsporný režim vypnutý</span></button>
+            <div class="eco-help" id="ecoHelp">Při zapnutí se může displej zamknout a zvonek na iPhonu nemusí zaznít včas.</div>
             <button id="previewSound" type="button"><span aria-hidden="true">🔔</span> Vyzkoušet zvoneček</button>
             <button id="fullBtn" type="button"><span aria-hidden="true">⛶</span> Celá obrazovka</button>
             <div class="menu-divider"></div>
@@ -1138,6 +1147,11 @@
   const palette = ['#f18b9f','#ffb874','#ffdd75','#9ddc8e','#6ed5c7','#7dbce8','#b8a0ed'];
   const bands = [];
   let selected = 20, dialMax = 60, scaleCustomized = false, remainingMs = 20 * 60000, running = false, finishAt = 0, frame = 0, alarmTimer = 0, muted = false, lastShown = -1, finishTimeout, audioCtx = null;
+  const NORMAL_FRAME_MS=200, ECO_FRAME_MS=1000;
+  let ecoMode=false;
+  try{ecoMode=localStorage.getItem('detska-minutka-eco-v1')==='1';}catch(_){/* Storage unavailable. */}
+  document.body.classList.toggle('eco-mode',ecoMode);
+  const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
   const ns = 'http://www.w3.org/2000/svg';
   const create = (tag, attrs, parent, content) => { const el = document.createElementNS(ns,tag);Object.entries(attrs).forEach(([name,value])=>el.setAttribute(name,value));if(content!==undefined)el.textContent=content;parent.appendChild(el);return el; };
   function drawScale(){
@@ -1204,41 +1218,49 @@
     }
   }
   function paint(){
-    const leftMin=Math.max(0,remainingMs/60000),f=Math.min(1,leftMin/dialMax);
-    const arcLength=120*f;
-    for(const band of bands)band.setAttribute('stroke-dasharray',`${arcLength} ${120-arcLength}`);
-    sector.setAttribute('d',wedgePath(f));
-    if(f<=.00001){endpoint.style.display='none';}else{
-      endpoint.style.display='';
-      const a=-Math.PI/2+f*2*Math.PI;
-      endpoint.setAttribute('transform',`translate(${(400+246*Math.cos(a)).toFixed(2)} ${(400+246*Math.sin(a)).toFixed(2)}) scale(.9)`);
+    const activeScene=sceneThemes[theme];
+    // Duhový ciferník upravujeme jen když je opravdu zvolený.
+    if(theme==='rainbow'){
+      const leftMin=Math.max(0,remainingMs/60000),f=Math.min(1,leftMin/dialMax);
+      const arcLength=120*f;
+      for(const band of bands)band.setAttribute('stroke-dasharray',`${arcLength} ${120-arcLength}`);
+      sector.setAttribute('d',wedgePath(f));
+      if(f<=.00001){endpoint.style.display='none';}else{
+        endpoint.style.display='';
+        const a=-Math.PI/2+f*2*Math.PI;
+        endpoint.setAttribute('transform',`translate(${(400+246*Math.cos(a)).toFixed(2)} ${(400+246*Math.sin(a)).toFixed(2)}) scale(.9)`);
+      }
+    }else if(activeScene){
+      // Pouze vybraný obrázek. Skrytá SVG zůstávají beze změn.
+      const progressed=Math.max(0,Math.min(1,1-remainingMs/(selected*60000)));
+      activeScene.fill.setAttribute('y',String(activeScene.baseY-activeScene.span*progressed));
+      activeScene.fill.setAttribute('height',String(activeScene.span*progressed));
+      setText(activeScene.progress,activeScene.progressText(Math.floor(progressed*100)));
     }
-    const progressed=Math.max(0,Math.min(1,1-remainingMs/(selected*60000)));
-    const pct=Math.floor(progressed*100);
-    Object.values(sceneThemes).forEach(scene=>{
-      scene.fill.setAttribute('y',String(scene.baseY-scene.span*progressed));
-      scene.fill.setAttribute('height',String(scene.span*progressed));
-      scene.progress.textContent=scene.progressText(pct);
-    });
     const displayed=Math.ceil(remainingMs/1000);
     if(displayed!==lastShown){
       lastShown=displayed;
       const formatted=clockFormat(remainingMs);
-      time.textContent=formatted;
-      Object.values(sceneThemes).forEach(scene=>scene.time.textContent=formatted);
-      time.classList.toggle('long',false);
+      if(activeScene)setText(activeScene.time,formatted);
+      else setText(time,formatted);
     }
-    const activeScene=sceneThemes[theme];
-    if(remainingMs<=0){
-      label.textContent='ČAS VYPRŠEL!';label.classList.add('timed-out');message.textContent='Hurá, dokázali jsme to! 🎉';
-      status.textContent=activeScene?activeScene.finishedStatus:'Konec čekání! Duha se schovala. 🌟';
-    } else {
-      label.textContent='ZBÝVÁ JEŠTĚ';label.classList.remove('timed-out');
-      message.textContent=running?'jednorožci odpočítávají 🦄':'a duha kouzlí dál ✨';
-      status.textContent=activeScene?(running?activeScene.runningStatus:activeScene.idleStatus):(running?'Pozoruj, jak duha pomalu mizí. 🌈':'Jak duha mizí, čas utíká. 🦄');
+    if(theme==='rainbow'){
+      if(remainingMs<=0){
+        setText(label,'ČAS VYPRŠEL!');label.classList.add('timed-out');setText(message,'Hurá, dokázali jsme to! 🎉');
+      }else{
+        setText(label,'ZBÝVÁ JEŠTĚ');label.classList.remove('timed-out');
+        setText(message,running?'jednorožci odpočítávají 🦄':'a duha kouzlí dál ✨');
+      }
     }
-    btnIcon.textContent=running?'❚❚':'▶';btnText.textContent=running?'Pozastavit':remainingMs<=0?'Spustit znovu':remainingMs<selected*60000?'Pokračovat':'Spustit čas';
-    btn.setAttribute('aria-label',btnText.textContent);btn.title=btnText.textContent;
+    setText(status,remainingMs<=0
+      ?(activeScene?activeScene.finishedStatus:'Konec čekání! Duha se schovala. 🌟')
+      :activeScene?(running?activeScene.runningStatus:activeScene.idleStatus)
+        :(running?'Pozoruj, jak duha pomalu mizí. 🌈':'Jak duha mizí, čas utíká. 🦄'));
+    setText(btnIcon,running?'❚❚':'▶');
+    const controlLabel=running?'Pozastavit':remainingMs<=0?'Spustit znovu':remainingMs<selected*60000?'Pokračovat':'Spustit čas';
+    setText(btnText,controlLabel);
+    if(btn.getAttribute('aria-label')!==controlLabel)btn.setAttribute('aria-label',controlLabel);
+    if(btn.title!==controlLabel)btn.title=controlLabel;
   }
   function setTheme(next){
     theme=['rainbow',...Object.keys(sceneThemes)].includes(next)?next:'rainbow';
@@ -1249,19 +1271,20 @@
     const chosen = allThemes.find(item=>item.id===theme) || allThemes[0];
     $('triggerEmoji').textContent=chosen.emoji;
     $('triggerLabel').textContent=`Motivy · ${chosen.label}`;
-    paint();
+    if(theme==='rainbow')drawScale();
+    lastShown=-1;paint();
   }
   // Během odpočtu udržuje kompatibilní telefon vzhůru. Nelze vynutit při nízké baterii nebo mimo popředí.
   let screenWakeLock=null, pendingWakeLock=null;
   async function keepScreenAwake(){
-    if(!running || document.hidden || !navigator.wakeLock || screenWakeLock || pendingWakeLock)return;
+    if(!running || ecoMode || document.hidden || !navigator.wakeLock || screenWakeLock || pendingWakeLock)return;
     let request;
     try{
       request=navigator.wakeLock.request('screen');
       pendingWakeLock=request;
       const lock=await request;
       if(pendingWakeLock===request)pendingWakeLock=null;
-      if(!running || document.hidden){await lock.release();return;}
+      if(!running || ecoMode || document.hidden){await lock.release();return;}
       screenWakeLock=lock;
       lock.addEventListener('release',()=>{if(screenWakeLock===lock)screenWakeLock=null;});
     }catch(_){if(pendingWakeLock===request)pendingWakeLock=null;}
@@ -1271,14 +1294,14 @@
     screenWakeLock=null;
     if(lock)lock.release().catch(()=>{});
   }
-  function halt(){running=false;cancelAnimationFrame(frame);clearTimeout(alarmTimer);alarmTimer=0;allowScreenToSleep();}
+  function halt(){running=false;clearTimeout(frame);frame=0;clearTimeout(alarmTimer);alarmTimer=0;allowScreenToSleep();}
   function hideConfetti(){clearTimeout(finishTimeout);finishedOverlay.classList.remove('show');finishedOverlay.innerHTML='';}
   function syncPresets(){document.querySelectorAll('[data-minutes]').forEach(button=>button.classList.toggle('active',Number(button.dataset.minutes)===selected));}
   function setMinutes(value){
     halt();hideConfetti();selected=Math.min(MAX_MIN,Math.max(1,Number(value)||1));remainingMs=selected*60000;lastShown=-1;
     slider.value=String(selected);selection.textContent=readableMinutes(selected);
     const preferredScale=scaleCustomized?dialMax:60;
-    dialMax=Math.max(selected,preferredScale);updateScaleControls();drawScale();syncPresets();paint();
+    dialMax=Math.max(selected,preferredScale);updateScaleControls();if(theme==='rainbow')drawScale();syncPresets();paint();
   }
   function unlockAudio(){
     if(!audioCtx){
@@ -1313,7 +1336,7 @@
     }
   }
   function celebrate(){
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    if(ecoMode || window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     hideConfetti();finishedOverlay.classList.add('show');
     const activeScene=sceneThemes[theme];
     for(let i=0;i<28;i++){
@@ -1339,16 +1362,22 @@
       if(remainingMs===0)complete();else scheduleAlarm();
     },Math.max(1,remainingMs));
   }
-  function tick(now){
+  // Přesnost času měří performance.now(), nezávisle na počtu aktualizací SVG.
+  // Běžně 5× za sekundu, v úsporném režimu 1× za sekundu.
+  function tick(){
     if(!running)return;
-    remainingMs=Math.max(0,finishAt-now);
+    remainingMs=Math.max(0,finishAt-performance.now());
     if(remainingMs===0){complete();return;}
-    paint();frame=requestAnimationFrame(tick);
+    paint();frame=setTimeout(tick,ecoMode?ECO_FRAME_MS:NORMAL_FRAME_MS);
   }
   function toggle(){
-    if(running){halt();paint();return;}
+    if(running){
+      remainingMs=Math.max(0,finishAt-performance.now());
+      if(remainingMs===0){complete();return;}
+      halt();paint();return;
+    }
     hideConfetti();if(remainingMs<=0)remainingMs=selected*60000;
-    unlockAudio();running=true;finishAt=performance.now()+remainingMs;keepScreenAwake();scheduleAlarm();paint();frame=requestAnimationFrame(tick);
+    unlockAudio();running=true;finishAt=performance.now()+remainingMs;keepScreenAwake();scheduleAlarm();paint();frame=setTimeout(tick,ecoMode?ECO_FRAME_MS:NORMAL_FRAME_MS);
   }
   // Posuvníky mají vlastní dotykové/pointer ovládání, aby reagovaly i na telefonu.
   // Nativní input/change události zůstávají pro klávesnici a přístupnost.
@@ -1407,6 +1436,23 @@
     {id:'knight', label:'Rytíř', emoji:'🛡️'},
     {id:'rainbow', label:'Duha · ciferník', emoji:'🌈'}
   ];
+  function syncEcoMode(){
+    document.body.classList.toggle('eco-mode',ecoMode);
+    $('ecoBtn').setAttribute('aria-checked',String(ecoMode));
+    setText($('ecoText'),ecoMode?'Úsporný režim zapnutý':'Úsporný režim vypnutý');
+    setText($('ecoIcon'),ecoMode?'🪫':'🔋');
+  }
+  $('ecoBtn').addEventListener('click',()=>{
+    ecoMode=!ecoMode;
+    try{localStorage.setItem('detska-minutka-eco-v1',ecoMode?'1':'0');}catch(_){}
+    syncEcoMode();
+    if(running){
+      if(ecoMode)allowScreenToSleep();else keepScreenAwake();
+      clearTimeout(frame);
+      frame=setTimeout(tick,ecoMode?ECO_FRAME_MS:NORMAL_FRAME_MS);
+    }
+  });
+  syncEcoMode();
   const menuTrigger = $('menuTrigger');
   const mainMenu = $('mainMenu');
   function closeMenu(restoreFocus=false){
