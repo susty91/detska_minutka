@@ -23,4 +23,4 @@ Funguje na počítači, tabletu i telefonu a nepotřebuje přihlášení, datab�
 **Upozornění ke zvuku:** Mobilní prohlížeče někdy omezují zvuk na pozadí. Pokud telefon aplikaci uspí, závěrečné upozornění se může přehrát až po návratu do otevřené stránky.
 
 
-Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.\n\nFavicon je v souboru `favicon.svg`. Nabídka obsahuje také připravenou, dočasně neaktivní položku „Podpořit projekt“. Jakmile bude založený profil Buy Me a Coffee, je možné doplnit jeho přesný odkaz.
+Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.\n\nFavicon je v souboru `favicon.svg`. 
