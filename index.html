@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#fff8f4" />
+  <title>Duhové hodiny – kouzelný časovač pro děti</title>
+  <meta name="description" content="Barevná minutka pro děti. Vyber si pohádkový motiv, nastav 1–60 minut a sleduj, jak se obrázek postupně vybarvuje." />
+  <style>
+    :root{color-scheme:light;--ink:#34445f;--muted:#8491a8;--lavender:#816bd6;--soft:#faf7ff;--edge:#e9e8f3;--shadow:0 18px 50px rgba(73,72,128,.11)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-rounded,"SF Pro Rounded","Trebuchet MS",system-ui,-apple-system,sans-serif;color:var(--ink);background:radial-gradient(circle at 14% 18%,#f4eaff 0,transparent 26%),radial-gradient(circle at 87% 80%,#def5fb 0,transparent 29%),#fffaf7;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+    button,input{font:inherit}
+    button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    button:focus-visible,input:focus-visible{outline:3px solid #ab8bff;outline-offset:3px}
+    .shell{width:min(1200px,96vw);margin:auto;min-height:100vh;min-height:100dvh;display:flex;align-items:center;flex-direction:column}
+    header{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 18px 10px}
+    .logo{display:flex;gap:10px;align-items:center;font-size:clamp(17px,1.8vw,23px);font-weight:900;letter-spacing:-.05em;white-space:nowrap}
+    .logo-mark{width:38px;height:38px;display:grid;place-items:center;background:#fff;box-shadow:0 5px 16px #ddd2ef8c;border-radius:14px;font-size:24px}
+    .tagline{font-weight:700;color:#a393bf;font-size:12px;letter-spacing:.015em;margin-top:1px}
+    .settings{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.94);border:1px solid #f0e8f1;padding:10px 12px 10px 18px;border-radius:24px;box-shadow:0 8px 24px #9987aa19;min-width:min(750px,72vw)}
+    .setting-title{font-size:13px;font-weight:800;color:#807d99;white-space:nowrap}
+    #duration{appearance:none;-webkit-appearance:none;display:block;flex:1;min-width:100px;height:12px;border-radius:100px;background:linear-gradient(90deg,#ff98ad 0%,#ffc97c 25%,#a0dc98 50%,#7fcdf0 75%,#ae9af7 100%);box-shadow:inset 0 1px 3px #57506b1a;cursor:pointer}
+    #duration::-webkit-slider-thumb{-webkit-appearance:none;width:29px;height:29px;background:#fff;border:5px solid #8a70e1;box-shadow:0 2px 6px #61518d45;border-radius:50%}
+    #duration::-moz-range-thumb{width:19px;height:19px;background:#fff;border:5px solid #8a70e1;box-shadow:0 2px 6px #61518d45;border-radius:50%}
+    #duration{touch-action:none;overscroll-behavior:contain;}
+    .selected-time{background:#f2edff;color:#6954ba;min-width:104px;padding:8px 10px;text-align:center;border-radius:15px;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .top-extras{display:flex;gap:7px}
+    .icon-button{width:42px;height:42px;display:grid;place-items:center;border:1px solid #eae4ef;border-radius:14px;background:#fff;color:#7b7394;font-size:19px;box-shadow:0 2px 8px #857c9b10}
+    .icon-button:hover{background:#f6f2ff}
+    .presets{display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap;padding:0 12px 0;max-width:100%}
+    .preset{border:1px solid #eae4f0;background:#fffafc;color:#7d7b93;border-radius:100px;font-size:12px;font-weight:800;padding:7px 13px;box-shadow:0 3px 9px #8472a70b}
+    .preset.active{background:#8d79d7;border-color:#8d79d7;color:white;box-shadow:0 4px 12px #8d79d745}
+    main{width:100%;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px}
+    .clock-frame{width:min(75vmin,730px);aspect-ratio:1;position:relative;filter:drop-shadow(0px 15px 18px #9394ac29);flex:0 0 auto}
+    .clock{height:100%;width:100%;overflow:visible}
+    .dial-number{fill:#9098b0;font-size:22px;font-weight:800;text-anchor:middle;dominant-baseline:central;letter-spacing:-.05em}
+    .dial-number.zero{fill:#ed8ea1;font-size:25px}
+    .tick{stroke:#cfd5e2;stroke-width:2.2;stroke-linecap:round}
+    .tick.major{stroke:#9ca6bb;stroke-width:4}
+    .remaining-display{font-size:clamp(16px,3vw,20px);font-weight:800;fill:#9493aa;letter-spacing:.01em}
+    .countdown{font-size:68px;fill:#4a486d;font-weight:900;letter-spacing:-.055em;font-variant-numeric:tabular-nums}
+    .countdown.long{font-size:50px}
+    .dial-message{font-size:18px;font-weight:800;fill:#9a8fae}
+    .timed-out{fill:#d878a8}
+    .moving-unicorn{filter:drop-shadow(0 3px 5px #8e72b940)}
+    .actions{display:flex;gap:10px;justify-content:center;align-items:center;padding-bottom:4px}
+    .action{border:none;border-radius:17px;height:51px;padding:0 30px;font-weight:900;font-size:17px;display:flex;align-items:center;gap:9px;justify-content:center}
+    .primary{background:linear-gradient(120deg,#9575e3,#7867c8);color:#fff;box-shadow:0 8px 20px #7f65c847}
+    .primary:hover{filter:brightness(1.07)}
+    .secondary{background:#fff;border:1px solid #eae5ed;color:#77778f;box-shadow:0 4px 12px #8579a91a}
+    .secondary:hover{background:#fbf8ff}
+    .footnote{font-size:13px;color:#a6a1b2;text-align:center;margin:0 0 12px;font-weight:700}
+    .overlay{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden;display:none}
+    .overlay.show{display:block}
+    @media (max-width:780px){header{display:flex;flex-wrap:wrap;justify-content:center;padding:12px 8px 8px;gap:10px}.logo{font-size:19px}.tagline{display:none}.settings{order:3;width:100%;min-width:0;padding:10px 10px 10px 12px;border-radius:19px}.setting-title{font-size:12px}.top-extras{margin-left:auto}.presets{margin-top:6px}.clock-frame{width:min(88vw,70dvh);max-width:600px}.clock .dial-number{font-size:24px}.action{height:48px;padding:0 24px}.footnote{font-size:12px}}
+    @media(max-height:750px) and (min-width:781px){header{padding-top:8px;padding-bottom:5px}.presets{padding:0}.clock-frame{width:min(72vmin,640px)}.action{height:44px}.footnote{margin-bottom:5px}}
+    @media(max-width:450px){header{padding:10px 8px}.logo{width:100%;justify-content:center;font-size:17px}.top-extras{position:absolute;right:12px;top:8px}.icon-button{width:34px;height:34px;border-radius:10px}.settings{padding:9px 10px;gap:7px}.setting-title{font-size:11px}.selected-time{font-size:16px;padding:8px 7px;min-width:79px}.presets{gap:5px}.preset{font-size:11px;padding:6px 10px}.clock-frame{width:min(96vw,55dvh)}.actions{padding:0}.footnote{padding:0 14px;line-height:1.4}}
+
+    /* Svislé měřítko určuje počet minut na celý kruh, nikoliv délku odpočtu. */
+    .clock-stage{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;padding-right:clamp(88px,12vw,170px)}
+    .scale-panel{position:fixed;right:max(10px,env(safe-area-inset-right));top:50%;transform:translateY(-50%);width:92px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 8px 14px;background:rgba(255,255,255,.92);border:1px solid #f0e8f1;border-radius:24px;box-shadow:0 8px 24px #9987aa19;backdrop-filter:blur(8px);z-index:3;text-align:center}
+    .scale-title{font-size:11px;font-weight:800;line-height:1.25;color:#807d99;letter-spacing:.015em}
+    .scale-value{background:#f2edff;color:#6954ba;min-width:72px;padding:7px 8px;text-align:center;border-radius:15px;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .scale-subtitle{color:#a393bf;font-weight:700;font-size:10px;line-height:1.25;max-width:76px}
+    .vertical-range-box{width:48px;height:clamp(168px,35vmin,284px);position:relative;display:flex;align-items:center;justify-content:center;touch-action:none}
+    .scale-track{height:100%;width:46px;position:relative;display:block;cursor:grab;touch-action:none;outline-offset:2px;border-radius:22px;user-select:none;-webkit-user-select:none}
+    .scale-track:active{cursor:grabbing}
+    .scale-track::before{content:"";position:absolute;top:0;bottom:0;left:17px;width:12px;border-radius:100px;background:linear-gradient(180deg,#ae9af7 0%,#7fcdf0 25%,#a0dc98 50%,#ffc97c 75%,#ff98ad 100%);box-shadow:inset 0 1px 3px #57506b1a}
+    .scale-thumb{position:absolute;left:50%;top:var(--pos,50%);width:29px;height:29px;border-radius:50%;border:5px solid #8a70e1;background:#fff;box-shadow:0 2px 6px #61518d45;transform:translate(-50%,-50%);pointer-events:none}
+    .scale-track:focus-visible{outline:3px solid #ab8bff}
+    .scale-edge{font-size:10px;line-height:1.15;font-weight:800;color:#a29ab2}
+    #previewSound{font-size:21px}
+    .unicorn-drop{position:absolute;top:-125px;width:104px;height:116px;animation:unicornFall linear forwards;opacity:.96;will-change:transform}
+    .unicorn-drop svg{width:100%;height:100%;display:block;filter:drop-shadow(0 5px 8px rgba(126,104,186,.25))}
+    .dino-drop{width:132px;height:132px;top:-150px}
+    @keyframes unicornFall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--spin));opacity:0}}
+    @media(max-width:780px){.clock-frame{width:min(74vw,67dvh)}.clock-stage{padding-right:92px}.scale-panel{width:84px;padding:10px 6px 12px;border-radius:20px;gap:8px;right:max(6px,env(safe-area-inset-right))}.scale-title{font-size:10px}.scale-value{font-size:14px;min-width:64px;padding:6px 6px}.scale-subtitle{font-size:9px;max-width:68px}.vertical-range-box{height:clamp(150px,32vmin,228px)}}
+    @media(max-width:450px){header .logo{width:auto;justify-content:flex-start;font-size:16px;margin-right:117px}header .logo-mark{flex-shrink:0}.clock-frame{width:min(74vw,56dvh)}.clock-stage{padding-right:76px}.scale-panel{width:70px;padding:9px 4px 10px;border-radius:18px;gap:7px;right:4px}.scale-title{font-size:9px}.scale-value{font-size:12px;padding:5px 4px;min-width:54px;border-radius:10px}.scale-subtitle{font-size:8px;max-width:58px}.vertical-range-box{height:clamp(118px,28vmin,186px)}.scale-edge{font-size:8px}.unicorn-drop{width:80px;height:90px}}
+    @media(max-height:660px) and (min-width:781px){.clock-frame{width:min(65vmin,600px)}.vertical-range-box{height:clamp(140px,29vmin,218px)}}
+    .themes{display:flex;align-items:center;justify-content:center;gap:5px;background:#fff;border:1px solid #ede9f1;border-radius:20px;padding:5px;margin:8px auto 0;box-shadow:0 4px 15px #9987aa17}
+    .theme-option{font-size:14px;font-weight:850;border:0;background:transparent;color:#807b98;border-radius:15px;padding:8px 17px;line-height:1.1;white-space:nowrap}
+    .theme-option.active{color:white;background:linear-gradient(120deg,#9575e3,#7867c8);box-shadow:0 4px 12px #7f65c844}
+    .theme-option.active[data-theme="dino"]{background:linear-gradient(120deg,#57bba1,#328c85)}
+     .theme-option.active[data-theme="unicorn"]{background:linear-gradient(120deg,#f39ac9,#b989dc)}
+    .theme-option.active[data-theme="rocket"]{background:linear-gradient(120deg,#7aa7ff,#7b64d8)}
+    .theme-option.active[data-theme="digger"]{background:linear-gradient(120deg,#f2bf52,#d18d22)}
+    .theme-option.active[data-theme="giraffe"]{background:linear-gradient(120deg,#f3b663,#d9853c)}
+    .clock[hidden]{display:none}
+    .dino-scene{filter:drop-shadow(0 10px 24px #77aa9a25)}
+    .dino-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#385b56;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .dino-time.long{font-size:52px}
+    .dino-label{font-size:22px;font-weight:900;fill:#448d81;letter-spacing:.055em;text-anchor:middle}
+    .dino-progress{font-size:22px;font-weight:900;fill:#6e9e97;text-anchor:middle}
+     .unicorn-scene{filter:drop-shadow(0 10px 24px #bd90bc25)}
+     .unicorn-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#73538e;font-variant-numeric:tabular-nums;text-anchor:middle}
+     .unicorn-label{font-size:21px;font-weight:900;fill:#b476af;letter-spacing:.035em;text-anchor:middle}
+     .unicorn-progress{font-size:22px;font-weight:900;fill:#a985bb;text-anchor:middle}
+    .rocket-scene{filter:drop-shadow(0 10px 24px #7f86d925)}
+    .rocket-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#4f4d8f;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .rocket-label{font-size:21px;font-weight:900;fill:#6470d1;letter-spacing:.035em;text-anchor:middle}
+    .rocket-progress{font-size:22px;font-weight:900;fill:#7781c9;text-anchor:middle}
+    .digger-scene{filter:drop-shadow(0 10px 24px #c79b4f25)}
+    .digger-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#856127;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .digger-label{font-size:21px;font-weight:900;fill:#ba8429;letter-spacing:.035em;text-anchor:middle}
+    .digger-progress{font-size:22px;font-weight:900;fill:#ac8744;text-anchor:middle}
+    .giraffe-scene{filter:drop-shadow(0 10px 24px #d79e5d25)}
+    .giraffe-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#8b5d2c;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .giraffe-label{font-size:21px;font-weight:900;fill:#cc8442;letter-spacing:.035em;text-anchor:middle}
+    .giraffe-progress{font-size:22px;font-weight:900;fill:#b88352;text-anchor:middle}
+    body.is-dino .scale-panel,body.is-unicorn .scale-panel,body.is-rocket .scale-panel,body.is-digger .scale-panel,body.is-giraffe .scale-panel{display:none}
+    body.is-dino .clock-stage,body.is-unicorn .clock-stage,body.is-rocket .clock-stage,body.is-digger .clock-stage,body.is-giraffe .clock-stage{padding-right:0}
+    body.is-dino .clock-frame,body.is-unicorn .clock-frame,body.is-rocket .clock-frame,body.is-digger .clock-frame,body.is-giraffe .clock-frame{width:min(75vmin,730px)}
+    @media(max-width:780px){body.is-dino .clock-frame,body.is-unicorn .clock-frame,body.is-rocket .clock-frame,body.is-digger .clock-frame,body.is-giraffe .clock-frame{width:min(87vw,65dvh)}.theme-option{font-size:12px;padding:7px 13px}.dino-drop,.unicorn-body-drop,.rocket-body-drop,.digger-body-drop,.giraffe-body-drop{width:104px;height:104px}}
+    @media(max-width:450px){body.is-dino .clock-frame,body.is-unicorn .clock-frame,body.is-rocket .clock-frame,body.is-digger .clock-frame,body.is-giraffe .clock-frame{width:min(94vw,56dvh)}.themes{margin-top:7px}.dino-drop,.unicorn-body-drop,.rocket-body-drop,.digger-body-drop,.giraffe-body-drop{width:92px;height:92px}.theme-option{font-size:11px;padding:7px 10px}}
+    @media(prefers-reduced-motion:reduce){.unicorn-drop{animation:none}}
+
+    /* Všechny ilustrované motivy mají stejnou velikost a zarovnání. */
+    body.is-car .scale-panel,body.is-tractor .scale-panel,body.is-firetruck .scale-panel,body.is-ocean .scale-panel,body.is-princess .scale-panel,body.is-knight .scale-panel{display:none}
+    body.is-car .clock-stage,body.is-tractor .clock-stage,body.is-firetruck .clock-stage,body.is-ocean .clock-stage,body.is-princess .clock-stage,body.is-knight .clock-stage{padding-right:0}
+    body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(75vmin,730px)}
+    .car-scene{filter:drop-shadow(0 10px 24px #d9898c25)}
+    .car-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#b85e67;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .car-label{font-size:21px;font-weight:900;fill:#b85e67;letter-spacing:.025em;text-anchor:middle}
+    .car-progress{font-size:22px;font-weight:900;fill:#b85e67;text-anchor:middle}
+    .tractor-scene{filter:drop-shadow(0 10px 24px #84b69325)}
+    .tractor-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#428f65;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .tractor-label{font-size:21px;font-weight:900;fill:#428f65;letter-spacing:.025em;text-anchor:middle}
+    .tractor-progress{font-size:22px;font-weight:900;fill:#428f65;text-anchor:middle}
+    .firetruck-scene{filter:drop-shadow(0 10px 24px #dc8e8425)}
+    .firetruck-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#c35c63;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .firetruck-label{font-size:21px;font-weight:900;fill:#c35c63;letter-spacing:.025em;text-anchor:middle}
+    .firetruck-progress{font-size:22px;font-weight:900;fill:#c35c63;text-anchor:middle}
+    .ocean-scene{filter:drop-shadow(0 10px 24px #8acada25)}
+    .ocean-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#408cab;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .ocean-label{font-size:21px;font-weight:900;fill:#408cab;letter-spacing:.025em;text-anchor:middle}
+    .ocean-progress{font-size:22px;font-weight:900;fill:#408cab;text-anchor:middle}
+    .princess-scene{filter:drop-shadow(0 10px 24px #d9a7ca25)}
+    .princess-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#aa66aa;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .princess-label{font-size:21px;font-weight:900;fill:#aa66aa;letter-spacing:.025em;text-anchor:middle}
+    .princess-progress{font-size:22px;font-weight:900;fill:#aa66aa;text-anchor:middle}
+    .knight-scene{filter:drop-shadow(0 10px 24px #9ba9c525)}
+    .knight-time{font-size:67px;font-weight:900;letter-spacing:-.04em;fill:#5f78a5;font-variant-numeric:tabular-nums;text-anchor:middle}
+    .knight-label{font-size:21px;font-weight:900;fill:#5f78a5;letter-spacing:.025em;text-anchor:middle}
+    .knight-progress{font-size:22px;font-weight:900;fill:#5f78a5;text-anchor:middle}
+
+    .theme-picker{margin:9px auto 0;display:flex;justify-content:center}
+    .theme-trigger{border:1px solid #e3dcef;background:linear-gradient(120deg,#fff,#faf5ff);box-shadow:0 6px 16px #8f75b322;padding:10px 18px;border-radius:17px;font-size:15px;font-weight:900;color:#7562ae;display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px}
+    .theme-trigger:hover{background:#f4edff}
+    .theme-trigger .trigger-emoji{font-size:22px}
+    .theme-trigger .trigger-caret{font-size:11px;color:#aaa0bc;margin-left:2px}
+    .theme-modal[hidden]{display:none}
+    .theme-modal{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(50,42,80,.48);backdrop-filter:blur(7px)}
+    .theme-dialog{background:linear-gradient(145deg,#fff,#fff9ff);width:min(720px,100%);max-height:min(760px,90dvh);overflow:hidden;display:flex;flex-direction:column;border-radius:28px;border:1px solid #fff;box-shadow:0 24px 70px #3c2f6b50;padding:23px}
+    .theme-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .theme-dialog h2{font-size:23px;letter-spacing:-.035em;margin:0;color:#5b507d}
+    .theme-dialog p{margin:5px 0 14px;color:#948ca9;font-size:13px;font-weight:650}
+    .theme-dialog .modal-close{border:0;background:#f5effa;color:#77698e;border-radius:12px;width:39px;height:39px;font-size:21px;flex-shrink:0}
+    .favorite-filter{display:flex;gap:7px;margin-bottom:12px}
+    .filter-option{padding:8px 13px;border-radius:11px;border:1px solid #e8e0f0;background:white;color:#857896;font-weight:850;font-size:13px}
+    .filter-option.active{background:#8c74d3;border-color:#8c74d3;color:white}
+    .theme-grid{overflow-y:auto;padding:3px 4px 7px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;align-content:start}
+    .theme-tile{width:100%;position:relative;border:1px solid #efe9f3;border-radius:18px;background:#fff;min-height:107px;padding:13px 7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+    .theme-tile:hover{background:#fbf7ff;border-color:#d7c9ed}
+    .theme-tile.active{background:#f2edff;border:2px solid #987cdb;padding:12px 6px}
+    .theme-tile-emoji{font-size:32px;line-height:1.1}
+    .theme-tile-name{color:#5f557b;font-size:13px;font-weight:900;line-height:1.1}
+    .tile-heart{position:absolute;top:7px;right:7px;border:0;border-radius:9px;background:#f7f3fa;color:#b5a5bc;font-size:18px;width:30px;height:30px;line-height:1}
+    .tile-heart.favorite{color:#e17c9b;background:#fff0f4}
+    .theme-empty{grid-column:1/-1;text-align:center;color:#8b7f9e;padding:22px;font-size:14px}
+    body.theme-modal-open{overflow:hidden}
+    @media(max-width:780px){body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(87vw,65dvh)}}
+    @media(max-width:450px){body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(94vw,56dvh)}.theme-picker{margin-top:7px}.theme-trigger{padding:8px 13px;min-height:42px;font-size:13px}.theme-dialog{max-height:92dvh;padding:16px;border-radius:20px}.theme-dialog h2{font-size:20px}.theme-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.theme-tile{min-height:92px;border-radius:14px;padding:10px 4px}.theme-tile-emoji{font-size:26px}.theme-tile-name{font-size:11px}.tile-heart{top:3px;right:3px;width:27px;height:27px;font-size:16px}}
+  </style>
+</head>
+<body>
+  <div class="overlay" id="confetti" aria-hidden="true"></div>
+  <div class="shell">
+    <header>
+      <div class="logo"><div class="logo-mark" aria-hidden="true">🌈</div><div>Duhové hodiny<div class="tagline">Malé kouzlo pro velké čekání ✨</div></div></div>
+      <div class="settings">
+        <label class="setting-title" for="duration">Nastav čas</label>
+        <input id="duration" type="range" min="1" max="60" value="20" step="1" aria-label="Délka časovače v minutách" />
+        <output class="selected-time" id="selectedTime" for="duration">20 min</output>
+      </div>
+      <div class="top-extras"><button class="icon-button" id="soundBtn" aria-label="Vypnout zvuk" title="Zapnout nebo vypnout závěrečný zvuk">🔊</button><button class="icon-button" id="previewSound" aria-label="Vyzkoušet zvonění" title="Poslechnout závěrečný zvoneček">🔔</button><button class="icon-button" id="fullBtn" aria-label="Celá obrazovka" title="Celá obrazovka">⛶</button></div>
+    </header>
+    <nav class="presets" aria-label="Rychlé nastavení času">
+      <button class="preset" data-minutes="1">1 min</button><button class="preset" data-minutes="2">2 min</button><button class="preset" data-minutes="5">5 min</button><button class="preset" data-minutes="10">10 min</button><button class="preset" data-minutes="15">15 min</button><button class="preset active" data-minutes="20">20 min</button><button class="preset" data-minutes="25">25 min</button><button class="preset" data-minutes="30">30 min</button><button class="preset" data-minutes="45">45 min</button><button class="preset" data-minutes="60">60 min</button>
+    </nav>
+    <div class="theme-picker">
+      <button class="theme-trigger" type="button" id="themeTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeModal">
+        <span class="trigger-emoji" id="triggerEmoji" aria-hidden="true">🌈</span>
+        <span id="triggerLabel">Vybrat motiv · Duha</span><span class="trigger-caret" aria-hidden="true">▾</span>
+      </button>
+    </div>
+    <div class="theme-modal" id="themeModal" hidden>
+      <section class="theme-dialog" role="dialog" aria-modal="true" aria-labelledby="themeDialogTitle" aria-describedby="themeDialogDesc">
+        <div class="theme-dialog-header">
+          <div><h2 id="themeDialogTitle">Vyber si svůj svět ✨</h2><p id="themeDialogDesc">Klepni na motiv. Srdíčkem si ho uložíš mezi oblíbené.</p></div>
+          <button type="button" class="modal-close" id="closeThemes" aria-label="Zavřít výběr motivu">×</button>
+        </div>
+        <div class="favorite-filter" role="group" aria-label="Filtrovat motivy">
+          <button type="button" class="filter-option active" id="showAllThemes" aria-pressed="true">Všechny motivy</button>
+          <button type="button" class="filter-option" id="showFavoriteThemes" aria-pressed="false">♡ Oblíbené</button>
+        </div>
+        <div class="theme-grid" id="themeGrid"></div>
+      </section>
+    </div>
+    <main>
+      <div class="clock-stage">
+      <div class="clock-frame">
+        <svg class="clock" id="clock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Duhový ciferník. V barevných pruzích je znázorněný zbývající čas.">
+          <defs>
+            <radialGradient id="dialBg" cx="48%" cy="38%" r="70%"><stop stop-color="#fff"/><stop offset="1" stop-color="#fafaff"/></radialGradient>
+            <linearGradient id="bezel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b0edfa"/><stop offset=".45" stop-color="#74c9e5"/><stop offset="1" stop-color="#6aafdc"/></linearGradient>
+            <filter id="insideShadow"><feGaussianBlur stdDeviation="8"/></filter>
+            <clipPath id="rainbowClip"><path id="sectorPath" d="M400 400 L400 85 A315 315 0 0 1 715 400 Z"/></clipPath>
+            <symbol id="unicorn" viewBox="-55 -65 110 120">
+              <path d="M-26,-16 C-47,-18 -50,16 -31,32 C-47,29 -42,44 -24,43 C-38,53 -17,59 -4,43" fill="#a79aed" stroke="#9684dc" stroke-width="2.5"/>
+              <path d="M-33,-16 C-52,-5 -42,6 -37,9" fill="none" stroke="#82d8ea" stroke-width="8" stroke-linecap="round"/>
+              <path d="M-40,11 C-40,23 -26,31 -34,38" fill="none" stroke="#f6a7bd" stroke-width="8" stroke-linecap="round"/>
+              <path d="M-20,-28 L-13,-59 L1,-26" fill="#f8e59f" stroke="#e2bf76" stroke-width="2.6" stroke-linejoin="round"/>
+              <path d="M-25,-20 C-40,-44 -45,-29 -32,-5 M22,-21 C35,-43 47,-25 34,-3" fill="#fff" stroke="#ddd2ef" stroke-width="3"/>
+              <path d="M-28,-18 C-35,-33 -39,-26 -29,-9 M29,-18 C35,-31 42,-22 32,-9" fill="#f8b8cb"/>
+              <path d="M-38,-4 C-38,-34 36,-41 40,-3 L42,22 Q31,47 4,48 Q-30,49 -40,23Z" fill="white" stroke="#e3d8f0" stroke-width="3"/>
+              <path d="M-40,-7 C-35,-25 -22,-28 -10,-28 Q-22,-8 -33,-6" fill="#b6a9f2"/>
+              <path d="M-39,1 C-32,-8 -23,-6 -19,-5" fill="none" stroke="#77d2e8" stroke-width="7" stroke-linecap="round"/>
+              <path d="M11,10 Q17,18 24,10" stroke="#696586" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+              <ellipse cx="31" cy="24" rx="9" ry="5.5" fill="#ffa8bd" opacity=".75"/>
+              <ellipse cx="-27" cy="24" rx="8" ry="5.5" fill="#ffa8bd" opacity=".75"/>
+              <circle cx="-1" cy="28" r="2.5" fill="#d5bfdf"/>
+              <path d="M-17,-35 Q-2,-44 13,-34" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+            </symbol>
+            <symbol id="sparkle" viewBox="-15 -15 30 30"><path d="M0 -14 Q3 -3 14 0 Q3 3 0 14 Q-3 3 -14 0 Q-3 -3 0 -14" fill="#ffd57c"/></symbol>
+          </defs>
+          <circle cx="400" cy="408" r="390" fill="#8fadd1" opacity=".13" filter="url(#insideShadow)" />
+          <circle cx="400" cy="400" r="393" fill="#dff3fd" stroke="#88cfeb" stroke-width="9"/>
+          <circle cx="400" cy="400" r="376" fill="url(#dialBg)" stroke="white" stroke-width="10" />
+          <circle cx="400" cy="400" r="368" fill="none" stroke="#d8deec" stroke-width="2"/>
+          <g id="ticks" aria-hidden="true"></g>
+          <g id="numbers" aria-hidden="true"></g>
+          <g id="track" fill="none" stroke="#f0eef7" stroke-width="18" aria-hidden="true"></g>
+          <g id="rainbow" fill="none" stroke-width="18" aria-hidden="true"></g>
+          <g clip-path="url(#rainbowClip)" id="rainbowFriends" aria-hidden="true">
+            <use href="#unicorn" x="502" y="100" width="100" height="100" opacity=".97" />
+            <use href="#unicorn" x="440" y="590" width="87" height="87" opacity=".97" />
+            <use href="#unicorn" x="120" y="360" width="85" height="85" opacity=".97" />
+            <use href="#sparkle" x="583" y="212" width="30" height="30" />
+            <use href="#sparkle" x="204" y="486" width="25" height="25" />
+            <use href="#sparkle" x="520" y="515" width="24" height="24" />
+          </g>
+          <g id="movingUnicorn" class="moving-unicorn" aria-hidden="true"><circle r="42" fill="white" stroke="#ece5fa" stroke-width="3"/><use href="#unicorn" x="-38" y="-40" width="76" height="80"/></g>
+          <circle cx="400" cy="400" r="167" fill="#fff" stroke="#f1edfa" stroke-width="6" />
+          <circle cx="400" cy="400" r="153" fill="none" stroke="#faf8ff" stroke-width="3" stroke-dasharray="4 9" />
+          <text x="400" y="319" text-anchor="middle" class="remaining-display" id="remainingLabel">ZBÝVÁ JEŠTĚ</text>
+          <text x="400" y="411" text-anchor="middle" class="countdown" id="clockTime" aria-live="off">20:00</text>
+          <text x="400" y="458" text-anchor="middle" class="dial-message" id="clockMessage">a duha kouzlí dál ✨</text>
+          <g opacity=".7" aria-hidden="true"><use href="#sparkle" x="330" y="475" width="18" height="18"/><use href="#sparkle" x="452" y="276" width="14" height="14"/></g>
+        </svg>
+        <svg class="clock dino-scene" id="dinoClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Dinosaurus se během odpočítávání vybarvuje od nohou až po hlavu." hidden>
+          <defs>
+            <radialGradient id="dinoHalo"><stop stop-color="#f1fff8"/><stop offset="1" stop-color="#e6f5f2"/></radialGradient>
+            <linearGradient id="dinoGreen" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#a2efbf"/><stop offset="1" stop-color="#52bea1"/></linearGradient>
+            <linearGradient id="dinoBody" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b6f2c6"/><stop offset="1" stop-color="#71cdb1"/></linearGradient>
+            <filter id="dinoGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="dinoReveal" clipPathUnits="userSpaceOnUse"><rect id="dinoFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="dinoArt" stroke-linejoin="round" stroke-linecap="round">
+              <!-- ocas, výstupky a zadní končetiny -->
+              <path d="M264 467 C189 477 148 449 88 394 Q100 525 244 571Z" fill="#5abf9c" stroke="#4c998c" stroke-width="9"/>
+              <path d="M196 470 L183 424 Q201 421 221 456Z M246 445 L244 408 Q264 408 278 430Z M315 419 L329 389 Q345 395 350 413Z" fill="#b3a3f0" stroke="#8e8bd2" stroke-width="5"/>
+              <path d="M330 560 L307 665 Q305 691 336 690 L370 689 Q384 672 369 646 L391 584Z" fill="#54b89a" stroke="#4c998c" stroke-width="8"/>
+              <!-- dlouhý krk za bříškem -->
+              <path d="M416 469 C433 386 429 315 451 242 C468 181 512 168 557 182 C593 206 580 271 557 341 C545 399 535 454 545 517Z" fill="url(#dinoGreen)" stroke="#4c998c" stroke-width="11"/>
+              <path d="M477 271 C491 340 483 407 473 466" fill="none" stroke="#d0f6d3" stroke-width="29" opacity=".95"/>
+              <path d="M447 310 L407 287 Q414 263 447 272Z M459 256 L423 230 Q431 206 463 218Z M474 214 L447 185 Q461 162 487 179Z" fill="#b3a3f0" stroke="#8e8bd2" stroke-width="5"/>
+              <!-- tělo -->
+              <path d="M230 477 C255 421 321 396 399 403 C498 395 554 443 552 530 C553 614 492 664 397 666 C292 676 224 609 230 526Z" fill="url(#dinoBody)" stroke="#4c998c" stroke-width="11"/>
+              <path d="M335 474 C398 448 472 468 486 523 C508 580 469 630 403 640 C357 643 322 617 305 581 C293 544 307 494 335 474Z" fill="#d6f6cf" opacity=".96"/>
+              <ellipse cx="327" cy="492" rx="21" ry="15" fill="#49b8a0" opacity=".62"/>
+              <ellipse cx="288" cy="533" rx="14" ry="11" fill="#49b8a0" opacity=".62"/>
+              <ellipse cx="355" cy="450" rx="14" ry="11" fill="#49b8a0" opacity=".62"/>
+              <!-- zadní noha, přední noha, drápky -->
+              <path d="M304 586 Q278 628 274 666 C263 698 289 705 339 699 L368 697 C379 690 371 672 349 672 L360 611Z" fill="#72cbaa" stroke="#4c998c" stroke-width="9"/>
+              <path d="M461 588 Q449 637 445 669 C438 699 468 706 516 700 L541 697 C554 687 544 670 521 671 L517 591Z" fill="#89dcb2" stroke="#4c998c" stroke-width="9"/>
+              <path d="M307 693 L321 681 L331 699Z M348 693 L360 681 L366 695Z M480 696 L490 682 L501 700Z M522 695 L530 683 L539 695Z" fill="#fff9e2"/>
+              <!-- malá ručička -->
+              <path d="M508 474 C552 475 565 502 551 523 Q538 533 513 518" fill="#84dab1" stroke="#4c998c" stroke-width="9"/>
+              <circle cx="523" cy="520" r="7" fill="#e6ffe7"/>
+              <!-- velká roztomilá hlava -->
+              <path d="M475 165 C503 112 577 108 615 151 Q637 171 630 205 C662 215 680 236 674 262 Q671 295 618 299 Q591 299 574 292 Q521 308 481 273 C446 244 449 192 475 165Z" fill="url(#dinoGreen)" stroke="#4c998c" stroke-width="11"/>
+              <path d="M576 237 Q624 223 656 242" fill="none" stroke="#caf5d8" stroke-width="22" opacity=".9"/>
+              <ellipse cx="539" cy="195" rx="24" ry="28" fill="white"/>
+              <ellipse cx="544" cy="198" rx="12" ry="17" fill="#445e5a"/>
+              <circle cx="550" cy="190" r="5" fill="white"/>
+              <path d="M514 162 Q537 150 560 163" fill="none" stroke="#377d74" stroke-width="7"/>
+              <ellipse cx="503" cy="246" rx="22" ry="12" fill="#ffb7c2" opacity=".86"/>
+              <ellipse cx="643" cy="250" rx="6" ry="4.5" fill="#3e897c"/>
+              <path d="M587 265 Q613 288 644 274" fill="none" stroke="#488b7c" stroke-width="6"/>
+              <path d="M602 279 Q612 285 621 282" fill="none" stroke="white" stroke-width="4"/>
+              <path d="M490 126 L501 100 Q528 112 532 128" fill="#b9a5f2" stroke="#8e8bd2" stroke-width="5"/>
+              <path d="M553 119 L566 91 Q592 105 593 132" fill="#b9a5f2" stroke="#8e8bd2" stroke-width="5"/>
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#dinoHalo)"/>
+          <g fill="white" opacity=".86">
+            <ellipse cx="185" cy="223" rx="39" ry="16"/><circle cx="170" cy="212" r="20"/><circle cx="198" cy="210" r="25"/>
+            <ellipse cx="642" cy="389" rx="45" ry="16"/><circle cx="629" cy="378" r="21"/><circle cx="657" cy="379" r="22"/>
+          </g>
+          <path d="M145 666 Q400 707 656 665" fill="none" stroke="#c6e9dc" stroke-width="12" stroke-linecap="round"/>
+          <g fill="#83d7c3" opacity=".8"><circle cx="150" cy="584" r="7"/><circle cx="638" cy="574" r="6"/><circle cx="197" cy="328" r="6"/><circle cx="656" cy="334" r="4"/></g>
+          <!-- na začátku šedý dinosaurus, barvy stoupají odspodu -->
+          <use href="#dinoArt" opacity=".43" filter="url(#dinoGray)"/>
+          <use href="#dinoArt" clip-path="url(#dinoReveal)"/>
+          <text x="400" y="72" class="dino-label" id="dinoLabel">DINO SE VYBARVUJE!</text>
+          <text x="400" y="760" class="dino-time" id="dinoTime">20:00</text>
+          <text x="400" y="793" class="dino-progress" id="dinoProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock unicorn-scene" id="unicornClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Jednorožec se během odpočítávání vybarvuje od kopýtek až po roh." hidden>
+          <defs>
+            <radialGradient id="unicornHalo"><stop stop-color="#fff6fd"/><stop offset="1" stop-color="#f3eafe"/></radialGradient>
+            <linearGradient id="unicornCoat" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#e8d9fa"/></linearGradient>
+            <linearGradient id="unicornGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff5b7"/><stop offset="1" stop-color="#efbe63"/></linearGradient>
+            <filter id="unicornGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="unicornReveal" clipPathUnits="userSpaceOnUse"><rect id="unicornFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="unicornArt" stroke-linejoin="round" stroke-linecap="round">
+              <!-- Duhový ocásek za tělem -->
+              <path d="M270 414 C214 368 185 327 122 354 Q145 378 178 396 C127 384 104 407 84 442 Q140 437 183 451 C140 466 132 497 130 515 Q204 497 266 461Z" fill="#b7a1ee" stroke="#a68ad9" stroke-width="8"/>
+              <path d="M251 418 Q187 363 131 358 Q170 390 205 413" fill="none" stroke="#77d9e5" stroke-width="17"/>
+              <path d="M247 442 Q164 419 101 441 Q163 439 204 454" fill="none" stroke="#ffb6d2" stroke-width="18"/>
+              <path d="M252 462 Q198 486 144 499" fill="none" stroke="#ffdb8a" stroke-width="15"/>
+              <!-- Zadní a přední nožky -->
+              <path d="M274 512 Q260 567 257 641 L255 666 Q251 686 270 689 L323 689 Q336 682 321 665 L318 603 L341 536Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="9"/>
+              <path d="M440 524 Q448 574 442 645 L443 667 Q442 687 461 690 L510 690 Q522 682 506 665 L500 569Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="9"/>
+              <!-- Krk, hříva splývající dozadu -->
+              <path d="M446 441 C458 377 471 317 502 260 C529 218 561 214 592 230 L616 315 Q562 359 552 467Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="10"/>
+              <path d="M516 255 Q464 287 458 356 Q420 389 427 442 C460 423 479 398 490 359 Q477 415 471 447 C512 425 538 381 550 319Z" fill="#bc9ff0" stroke="#9d83d7" stroke-width="7"/>
+              <path d="M516 257 Q480 305 473 368 Q456 413 436 425" fill="none" stroke="#7cdce6" stroke-width="17"/>
+              <path d="M529 282 Q508 338 501 378 Q488 409 479 421" fill="none" stroke="#ffb9ce" stroke-width="18"/>
+              <!-- Tělíčko s měkkým bříškem -->
+              <path d="M225 446 C231 382 301 344 389 367 C470 361 537 397 552 455 C573 526 524 591 425 601 C325 612 233 559 225 493 Q219 471 225 446Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="11"/>
+              <path d="M292 500 C326 543 396 565 461 550" fill="none" stroke="#f9e7f7" stroke-width="33" opacity=".94"/>
+              <path d="M350 432 L364 453 L386 454 L370 468 L375 490 L350 477 L326 490 L332 468 L316 454 L338 453Z" fill="#eeb1d7" stroke="#d899c6" stroke-width="3"/>
+              <circle cx="398" cy="479" r="8" fill="#d7c2f3"/><circle cx="309" cy="482" r="6" fill="#ffdf97"/>
+              <!-- Nohy vpředu a růžová kopýtka -->
+              <path d="M317 539 Q303 581 299 652 L299 663 Q286 678 297 690 L353 690 Q367 681 352 663 L359 560Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="9"/>
+              <path d="M503 518 Q514 580 507 649 L505 662 Q496 684 515 691 L561 690 Q573 683 558 662 L550 534Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="9"/>
+              <path d="M259 661 L317 661 L326 680 Q323 692 308 693 L266 691 Q252 687 259 661Z M299 664 L354 664 L358 680 Q358 694 344 695 L306 693 Q292 686 299 664Z M445 665 L506 665 L514 684 Q506 695 493 694 L461 694 Q440 689 445 665Z M506 665 L560 665 L566 682 Q557 695 545 695 L518 695 Q500 689 506 665Z" fill="#dba8d6" stroke="#b786c1" stroke-width="5"/>
+              <!-- Ucho, roh a veselá hlava -->
+              <path d="M534 211 Q522 159 541 135 Q570 151 577 192Z" fill="white" stroke="#a695bc" stroke-width="8"/>
+              <path d="M539 162 Q558 174 561 197 L538 199Z" fill="#f3bfd8"/>
+              <path d="M600 188 L620 71 L652 183Z" fill="url(#unicornGold)" stroke="#d4a85c" stroke-width="7"/>
+              <path d="M612 134 L636 140 M607 158 L642 165" stroke="#fff9ce" stroke-width="6" fill="none"/>
+              <path d="M530 211 C552 169 620 159 658 199 Q678 216 667 251 C702 269 704 302 684 326 Q650 353 603 344 C555 365 501 344 494 302 Q484 245 530 211Z" fill="url(#unicornCoat)" stroke="#a695bc" stroke-width="10"/>
+              <path d="M593 293 Q649 274 687 298" fill="none" stroke="#fff" stroke-width="27" opacity=".85"/>
+              <!-- Barevná ofinka -->
+              <path d="M526 211 Q549 168 596 167 Q608 192 585 224 Q566 207 560 226 Q537 219 521 244Z" fill="#bb9eea" stroke="#9c88d8" stroke-width="6"/>
+              <path d="M533 206 Q555 184 578 178" fill="none" stroke="#7bdce8" stroke-width="13"/>
+              <path d="M566 188 Q587 192 582 210" fill="none" stroke="#ffb4d1" stroke-width="13"/>
+              <path d="M578 187 Q601 193 583 219" fill="none" stroke="#ffe5a2" stroke-width="10"/>
+              <!-- Výraz obličeje -->
+              <path d="M548 266 Q563 282 581 263" fill="none" stroke="#6f628a" stroke-width="6"/>
+              <path d="M544 268 L541 277 M551 273 L550 283 M559 279 L560 287" stroke="#6f628a" stroke-width="3.5"/>
+              <ellipse cx="592" cy="294" rx="21" ry="13" fill="#ffb6cf" opacity=".82"/>
+              <ellipse cx="670" cy="306" rx="5" ry="4" fill="#8a779b"/>
+              <path d="M622 324 Q645 338 661 326" fill="none" stroke="#a68cad" stroke-width="4"/>
+              <!-- Hvězdičky na těle -->
+              <path d="M406 409 L411 421 L424 425 L411 430 L406 444 L402 431 L389 425 L402 421Z" fill="#ffe2a4"/>
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#unicornHalo)"/>
+          <g fill="white" opacity=".9"><ellipse cx="175" cy="252" rx="42" ry="17"/><circle cx="160" cy="240" r="22"/><circle cx="189" cy="239" r="26"/><ellipse cx="652" cy="414" rx="44" ry="15"/><circle cx="632" cy="403" r="22"/><circle cx="667" cy="402" r="23"/></g>
+          <path d="M140 705 Q400 724 659 705" fill="none" stroke="#eddaf6" stroke-width="12" stroke-linecap="round"/>
+          <g fill="#f2c5e2" opacity=".83"><circle cx="148" cy="576" r="7"/><circle cx="653" cy="563" r="6"/><circle cx="230" cy="318" r="6"/><circle cx="672" cy="371" r="5"/></g>
+          <!-- Šedý jednorožec se při běhu časovače postupně vybarvuje od kopýtek -->
+          <use href="#unicornArt" opacity=".46" filter="url(#unicornGray)"/>
+          <use href="#unicornArt" clip-path="url(#unicornReveal)"/>
+          <text x="400" y="72" class="unicorn-label" id="unicornLabel">JEDNOROŽEC SE VYBARVUJE!</text>
+          <text x="400" y="760" class="unicorn-time" id="unicornTime">20:00</text>
+          <text x="400" y="793" class="unicorn-progress" id="unicornProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock rocket-scene" id="rocketClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Raketa se během odpočítávání vybarvuje od plamenů až po špičku a letí vesmírem." hidden>
+          <defs>
+            <radialGradient id="rocketHalo" cx="50%" cy="36%" r="65%"><stop stop-color="#f8f7ff"/><stop offset="1" stop-color="#e7ebff"/></radialGradient>
+            <linearGradient id="rocketBodyFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fefeff"/><stop offset="1" stop-color="#dfe4ff"/></linearGradient>
+            <linearGradient id="rocketRed" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff94ae"/><stop offset="1" stop-color="#ff6589"/></linearGradient>
+            <linearGradient id="rocketBlue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#90d7ff"/><stop offset="1" stop-color="#6b9cff"/></linearGradient>
+            <linearGradient id="rocketFlame" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff3a8"/><stop offset="1" stop-color="#ff8f59"/></linearGradient>
+            <filter id="rocketGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="rocketReveal" clipPathUnits="userSpaceOnUse"><rect id="rocketFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="rocketArt" stroke-linejoin="round" stroke-linecap="round">
+              <path d="M372 574 L347 661 Q342 686 362 692 L396 692 Q412 684 405 666 L414 585Z" fill="url(#rocketRed)" stroke="#8b6bb7" stroke-width="8"/>
+              <path d="M429 583 L436 662 Q432 686 450 692 L485 692 Q505 684 499 660 L469 574Z" fill="url(#rocketBlue)" stroke="#6d6cb0" stroke-width="8"/>
+              <path d="M374 668 C388 734 433 740 446 668" fill="url(#rocketFlame)" stroke="#f39b63" stroke-width="6"/>
+              <path d="M392 680 C400 720 425 725 429 680" fill="#fff9cf"/>
+              <path d="M285 502 Q243 535 232 600 Q261 592 289 573 Q302 598 321 607 Q320 543 313 518Z" fill="url(#rocketRed)" stroke="#8b6bb7" stroke-width="8"/>
+              <path d="M516 504 Q555 539 570 600 Q540 591 510 574 Q498 596 479 607 Q481 542 489 517Z" fill="url(#rocketBlue)" stroke="#6d6cb0" stroke-width="8"/>
+              <path d="M401 132 C467 170 511 262 499 411 L483 583 Q446 614 401 611 Q358 615 320 583 L303 411 C289 260 334 170 401 132Z" fill="url(#rocketBodyFill)" stroke="#7e78bc" stroke-width="10"/>
+              <path d="M401 131 Q444 110 483 156 Q446 173 401 168 Q359 173 319 156 Q355 112 401 131Z" fill="url(#rocketRed)" stroke="#8b6bb7" stroke-width="8"/>
+              <path d="M400 175 C441 176 472 253 468 403 L459 523 Q429 544 400 544 Q373 545 342 523 L333 403 C330 251 359 176 400 175Z" fill="#f9fbff" opacity=".96"/>
+              <circle cx="401" cy="300" r="57" fill="#86ccff" stroke="#6a78d0" stroke-width="8"/>
+              <circle cx="401" cy="300" r="30" fill="#dff7ff" opacity=".88"/>
+              <path d="M368 439 L433 439" stroke="#c9cff9" stroke-width="16"/>
+              <path d="M353 394 Q402 423 451 394" fill="none" stroke="#dfe5ff" stroke-width="18"/>
+              <circle cx="259" cy="216" r="17" fill="#ffe69c"/><circle cx="558" cy="170" r="10" fill="#ffd2ef"/><circle cx="552" cy="446" r="13" fill="#a7d8ff"/><circle cx="240" cy="436" r="9" fill="#f4d0ff"/>
+              <path d="M596 253 Q626 263 636 291 Q605 283 591 260" fill="#ffd7ab" stroke="#f1b86c" stroke-width="5"/>
+              <circle cx="615" cy="274" r="36" fill="#ffdf91" opacity=".82"/>
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#rocketHalo)"/>
+          <circle cx="158" cy="156" r="60" fill="#fff7d1" opacity=".8"/>
+          <circle cx="644" cy="595" r="44" fill="#d8e4ff" opacity=".75"/>
+          <g fill="#ffffff" opacity=".93"><circle cx="150" cy="265" r="6"/><circle cx="225" cy="164" r="5"/><circle cx="615" cy="234" r="6"/><circle cx="596" cy="495" r="5"/><circle cx="528" cy="132" r="4"/><circle cx="666" cy="166" r="4"/><circle cx="256" cy="530" r="4"/><circle cx="137" cy="468" r="5"/></g>
+          <use href="#rocketArt" opacity=".42" filter="url(#rocketGray)"/>
+          <use href="#rocketArt" clip-path="url(#rocketReveal)"/>
+          <text x="400" y="72" class="rocket-label" id="rocketLabel">RAKETA STARTUJE!</text>
+          <text x="400" y="760" class="rocket-time" id="rocketTime">20:00</text>
+          <text x="400" y="793" class="rocket-progress" id="rocketProgress">0 % připraveno</text>
+        </svg>
+        <svg class="clock digger-scene" id="diggerClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Bagr se během odpočítávání postupně vybarvuje od pásů až po rameno a lžíci." hidden>
+          <defs>
+            <radialGradient id="diggerHalo" cx="50%" cy="36%" r="65%"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#fff2d8"/></radialGradient>
+            <linearGradient id="diggerYellow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd96a"/><stop offset="1" stop-color="#f0a81f"/></linearGradient>
+            <linearGradient id="diggerGrayFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9499a8"/><stop offset="1" stop-color="#6e7283"/></linearGradient>
+            <filter id="diggerGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="diggerReveal" clipPathUnits="userSpaceOnUse"><rect id="diggerFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="diggerArt" stroke-linejoin="round" stroke-linecap="round">
+
+              <!-- Kreslený pásový bagr: všechny části stroje tvoří propojený mechanismus. -->
+              <!-- pásy a podvozek -->
+              <rect x="166" y="578" width="420" height="117" rx="57" fill="#4d566c" stroke="#353e52" stroke-width="10"/>
+              <rect x="186" y="595" width="376" height="83" rx="41" fill="#737d8f" stroke="#a0aabc" stroke-width="7"/>
+              <g fill="#dae0eb" stroke="#566074" stroke-width="7"><circle cx="236" cy="636" r="27"/><circle cx="308" cy="636" r="27"/><circle cx="382" cy="636" r="27"/><circle cx="458" cy="636" r="27"/><circle cx="522" cy="636" r="27"/></g>
+              <!-- trup a kabina -->
+              <path d="M200 535 Q190 512 215 483 L249 431 Q259 409 289 410 H434 Q477 411 494 445 L511 558 H206Z" fill="url(#diggerYellow)" stroke="#a77725" stroke-width="10"/>
+              <path d="M269 437 Q273 424 292 424 H381 V529 H236 L249 470Z" fill="#bcecff" stroke="#729cb0" stroke-width="8"/>
+              <path d="M318 424 V530" stroke="#729cb0" stroke-width="8"/>
+              <path d="M211 563 H517" stroke="#a77725" stroke-width="14" stroke-linecap="round"/>
+              <rect x="422" y="450" width="71" height="75" rx="16" fill="#f5bb37" stroke="#b68426" stroke-width="7"/>
+              <circle cx="448" cy="543" r="9" fill="#8f6227"/>
+              <!-- masivní první rameno vychází ze skutečného čepu na karoserii -->
+              <path d="M452 477 L504 169 Q508 143 532 142 Q562 146 566 176 L542 348 L513 477Z" fill="url(#diggerYellow)" stroke="#a77725" stroke-width="11"/>
+              <path d="M480 435 L518 223" stroke="#fff2b5" stroke-width="11" fill="none" stroke-linecap="round"/>
+              <circle cx="486" cy="459" r="30" fill="#f6ca52" stroke="#a77725" stroke-width="10"/>
+              <circle cx="486" cy="459" r="9" fill="#9c742b"/>
+              <!-- horní kloub a druhé rameno směrem ke lžíci -->
+              <path d="M530 146 L627 252 Q642 266 632 283 L613 307 L538 213Z" fill="url(#diggerYellow)" stroke="#a77725" stroke-width="10"/>
+              <circle cx="532" cy="171" r="23" fill="#ffd567" stroke="#a77725" stroke-width="8"/>
+              <circle cx="532" cy="171" r="7" fill="#9d7126"/>
+              <path d="M557 246 L613 299" fill="none" stroke="#fff0ae" stroke-width="10" stroke-linecap="round"/>
+              <!-- hydraulický píst spojuje dolní rameno s horním -->
+              <path d="M505 385 L559 271" fill="none" stroke="#627d94" stroke-width="20" stroke-linecap="round"/>
+              <path d="M505 385 L543 305" fill="none" stroke="#c9d8e5" stroke-width="11" stroke-linecap="round"/>
+              <circle cx="505" cy="385" r="13" fill="#66778a"/>
+              <circle cx="559" cy="271" r="13" fill="#66778a"/>
+              <!-- naklopená kopací lžíce přímo napojená na kloub ramene -->
+              <path d="M611 277 Q627 265 645 283 L654 323 L699 330 Q706 399 662 423 Q633 429 609 403 L581 373 Q613 347 611 277Z" fill="#f5b42c" stroke="#a77725" stroke-width="10"/>
+              <path d="M616 387 L631 424 L647 394 L669 422 L675 385" fill="none" stroke="#a77725" stroke-width="8" stroke-linecap="round"/>
+              <circle cx="619" cy="288" r="18" fill="#ffd567" stroke="#a77725" stroke-width="8"/>
+              <circle cx="619" cy="288" r="6" fill="#9d7126"/>
+              <circle cx="250" cy="487" r="12" fill="#fff4c7"/>
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#diggerHalo)"/>
+          <g fill="#fff" opacity=".88"><ellipse cx="176" cy="228" rx="46" ry="16"/><circle cx="160" cy="216" r="21"/><circle cx="189" cy="216" r="24"/><ellipse cx="620" cy="186" rx="40" ry="14"/><circle cx="603" cy="176" r="18"/><circle cx="632" cy="174" r="21"/></g>
+          <circle cx="660" cy="143" r="42" fill="#ffe587" opacity=".83"/>
+          <use href="#diggerArt" opacity=".45" filter="url(#diggerGray)"/>
+          <use href="#diggerArt" clip-path="url(#diggerReveal)"/>
+          <text x="400" y="72" class="digger-label" id="diggerLabel">BAGR KOPE!</text>
+          <text x="400" y="760" class="digger-time" id="diggerTime">20:00</text>
+          <text x="400" y="793" class="digger-progress" id="diggerProgress">0 % vykopáno</text>
+        </svg>
+        <svg class="clock giraffe-scene" id="giraffeClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Žirafa se během odpočítávání vybarvuje od nohou až po hlavu." hidden>
+          <defs>
+            <radialGradient id="giraffeHalo" cx="50%" cy="36%" r="65%"><stop stop-color="#fff9ef"/><stop offset="1" stop-color="#ffefd9"/></radialGradient>
+            <linearGradient id="giraffeBodyFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd388"/><stop offset="1" stop-color="#f1aa56"/></linearGradient>
+            <filter id="giraffeGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="giraffeReveal" clipPathUnits="userSpaceOnUse"><rect id="giraffeFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="giraffeArt" stroke-linejoin="round" stroke-linecap="round">
+
+              <!-- Žirafa jako jedna souvislá silueta od kopýtek po růžky. -->
+              <!-- ocas s chomáčkem -->
+              <path d="M261 472 Q198 435 179 372" fill="none" stroke="#b87836" stroke-width="15" stroke-linecap="round"/>
+              <path d="M180 378 Q150 363 159 332 Q185 340 196 360 Q193 385 180 378Z" fill="#b87836"/>
+              <!-- zadní nohy -->
+              <path d="M283 522 Q274 584 275 668 Q275 691 299 691 H328 Q344 689 337 664 L350 538Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="10"/>
+              <path d="M453 529 Q455 597 454 667 Q452 691 476 692 H505 Q523 689 512 663 L512 538Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="10"/>
+              <!-- krk pevně vyrůstající z přední poloviny těla, dole široký -->
+              <path d="M438 449 Q465 404 473 339 Q479 289 475 245 Q475 174 516 166 Q555 159 564 208 Q562 260 553 333 Q552 405 560 487 L506 553 L450 511Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="11"/>
+              <path d="M491 240 Q500 304 490 378" fill="none" stroke="#ffdfac" stroke-width="23" opacity=".8" stroke-linecap="round"/>
+              <path d="M516 286 Q536 280 548 302 Q532 318 514 309Z M511 359 Q532 350 548 370 Q528 391 508 378Z M481 416 Q504 397 527 419 Q514 447 485 436Z" fill="#c6803b"/>
+              <!-- trup s kulatým bříškem se překrývá se spodní částí krku -->
+              <path d="M231 471 Q240 385 355 383 Q421 381 482 408 Q544 435 544 505 Q548 596 464 617 Q357 652 265 601 Q223 567 231 471Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="11"/>
+              <path d="M301 530 Q352 587 430 577" fill="none" stroke="#ffe4af" stroke-width="29" opacity=".62" stroke-linecap="round"/>
+              <!-- přední nohy vyrůstají z těla -->
+              <path d="M334 538 L333 668 Q333 691 358 692 H390 Q410 691 398 665 L406 554Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="10"/>
+              <path d="M476 529 L487 664 Q483 691 509 692 H541 Q558 689 545 665 L533 503Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="10"/>
+              <path d="M276 671 H336 M334 672 H399 M454 672 H511 M486 673 H549" stroke="#8a592d" stroke-width="8" stroke-linecap="round"/>
+              <!-- pravidelné skvrny na těle, nohou a krku -->
+              <g fill="#c7823e"><ellipse cx="295" cy="443" rx="25" ry="19"/><ellipse cx="368" cy="428" rx="29" ry="21"/><ellipse cx="441" cy="452" rx="27" ry="21"/><ellipse cx="311" cy="508" rx="19" ry="16"/><ellipse cx="385" cy="505" rx="24" ry="19"/><ellipse cx="469" cy="521" rx="22" ry="17"/><ellipse cx="365" cy="586" rx="16" ry="13"/><ellipse cx="510" cy="576" rx="14" ry="12"/></g>
+              <!-- růžky: malé kuličky se zabarví v posledních sekundách -->
+              <path d="M506 172 L502 112 M554 174 L566 110" fill="none" stroke="#bd7e3e" stroke-width="13" stroke-linecap="round"/>
+              <circle cx="502" cy="108" r="15" fill="#ba7535" stroke="#9b6434" stroke-width="5"/>
+              <circle cx="567" cy="107" r="15" fill="#ba7535" stroke="#9b6434" stroke-width="5"/>
+              <!-- uši směřují do stran a dobře navazují na hlavu -->
+              <path d="M494 189 Q453 143 446 174 Q447 209 492 218Z" fill="#fbd28c" stroke="#ae7135" stroke-width="9"/>
+              <path d="M566 190 Q608 142 623 171 Q627 205 574 217Z" fill="#fbd28c" stroke="#ae7135" stroke-width="9"/>
+              <path d="M466 181 Q476 178 484 191 M595 180 Q582 182 577 192" fill="none" stroke="#f2a5a2" stroke-width="8" stroke-linecap="round"/>
+              <!-- usměvavá hlava nad dlouhým krkem -->
+              <path d="M481 205 Q494 156 541 164 Q587 161 596 206 L599 258 Q628 266 632 299 Q627 335 580 335 H527 Q473 334 471 283 Q469 239 481 205Z" fill="url(#giraffeBodyFill)" stroke="#ae7135" stroke-width="10"/>
+              <path d="M552 278 Q588 266 620 286 Q635 301 623 322 Q606 345 565 328Z" fill="#ffe2ab" stroke="#ae7135" stroke-width="6"/>
+              <ellipse cx="527" cy="239" rx="21" ry="26" fill="#fffdf5"/>
+              <ellipse cx="533" cy="242" rx="10" ry="15" fill="#4b4137"/>
+              <circle cx="536" cy="235" r="4" fill="#fff"/>
+              <path d="M505 206 Q526 192 545 204" fill="none" stroke="#946431" stroke-width="6" stroke-linecap="round"/>
+              <ellipse cx="497" cy="287" rx="21" ry="13" fill="#ffabb8" opacity=".73"/>
+              <circle cx="602" cy="297" r="5" fill="#95643b"/>
+              <path d="M557 315 Q573 330 590 315" stroke="#8d6038" stroke-width="5" fill="none" stroke-linecap="round"/>
+              <path d="M554 185 Q564 166 582 173" stroke="#d2934d" stroke-width="8" fill="none"/>
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#giraffeHalo)"/>
+          <circle cx="652" cy="151" r="52" fill="#ffe19b" opacity=".85"/>
+          <g fill="#fff" opacity=".9"><ellipse cx="182" cy="217" rx="46" ry="16"/><circle cx="164" cy="205" r="21"/><circle cx="194" cy="205" r="25"/><ellipse cx="626" cy="401" rx="44" ry="15"/><circle cx="610" cy="390" r="21"/><circle cx="642" cy="389" r="23"/></g>
+          <path d="M142 704 Q401 726 659 703" fill="none" stroke="#e9ca96" stroke-width="12" stroke-linecap="round"/>
+          <use href="#giraffeArt" opacity=".43" filter="url(#giraffeGray)"/>
+          <use href="#giraffeArt" clip-path="url(#giraffeReveal)"/>
+          <text x="400" y="72" class="giraffe-label" id="giraffeLabel">ŽIRAFA ROSTE DO BAREV!</text>
+          <text x="400" y="760" class="giraffe-time" id="giraffeTime">20:00</text>
+          <text x="400" y="793" class="giraffe-progress" id="giraffeProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock car-scene" id="carClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Autíčko se při odpočítávání postupně vybarvuje." hidden>
+          <defs>
+            <radialGradient id="carHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#fff8f4"/><stop offset="1" stop-color="#ffecea"/></radialGradient>
+            <linearGradient id="carPaint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffa0a0"/><stop offset="1" stop-color="#fb656f"/></linearGradient>
+            <filter id="carGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="carReveal" clipPathUnits="userSpaceOnUse"><rect id="carFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="carArt" stroke-linejoin="round" stroke-linecap="round">
+
+<!-- veselá karoserie a kola -->
+<path d="M166 516 Q153 480 182 455 L250 432 Q287 349 358 344 H494 Q560 351 595 439 L639 465 Q662 477 662 508 V564 Q662 589 637 591 H172 Q144 586 150 554Z" fill="url(#carPaint)" stroke="#b75c66" stroke-width="11"/>
+<path d="M289 431 Q322 371 365 373 H475 Q527 377 557 437Z" fill="#b6e7fd" stroke="#759db8" stroke-width="8"/>
+<path d="M427 373 V436" stroke="#779cb9" stroke-width="8"/>
+<rect x="175" y="476" width="462" height="70" rx="28" fill="#ffb3b0" opacity=".40"/>
+<ellipse cx="245" cy="568" rx="64" ry="66" fill="#585a74" stroke="#44465e" stroke-width="9"/>
+<ellipse cx="562" cy="568" rx="64" ry="66" fill="#585a74" stroke="#44465e" stroke-width="9"/>
+<circle cx="245" cy="568" r="31" fill="#e3e9fa" stroke="#9ea9c4" stroke-width="7"/><circle cx="562" cy="568" r="31" fill="#e3e9fa" stroke="#9ea9c4" stroke-width="7"/>
+<circle cx="314" cy="497" r="9" fill="#434962"/><circle cx="476" cy="497" r="9" fill="#434962"/>
+<path d="M358 525 Q399 548 439 525" fill="none" stroke="#80545e" stroke-width="7"/>
+<ellipse cx="232" cy="491" rx="36" ry="22" fill="#fff5be" stroke="#f0bf73" stroke-width="5"/>
+<ellipse cx="583" cy="491" rx="33" ry="21" fill="#fff5be" stroke="#f0bf73" stroke-width="5"/>
+<path d="M198 453 L251 432 M566 440 L628 462" stroke="#ffe3dc" stroke-width="10" opacity=".8"/>
+<path d="M349 352 Q422 320 502 353" fill="none" stroke="#fff6f4" stroke-width="9"/>
+
+            
+
+              <!-- Tři narozeninové balónky upevněné na autíčku vyplní horní část motivu. -->
+              <path d="M411 352 Q396 282 322 194 M411 352 Q435 269 413 150 M411 352 Q470 279 509 195" fill="none" stroke="#a9a0be" stroke-width="4" stroke-linecap="round"/>
+              <ellipse cx="317" cy="167" rx="41" ry="57" fill="#ffd277" stroke="#d9a856" stroke-width="7"/>
+              <ellipse cx="413" cy="127" rx="44" ry="57" fill="#92d6fb" stroke="#6cb0d2" stroke-width="7"/>
+              <ellipse cx="516" cy="165" rx="41" ry="57" fill="#c8a9f3" stroke="#aa8bda" stroke-width="7"/>
+              <path d="M317 222 L310 234 L325 234Z M412 181 L403 196 L422 196Z M516 219 L508 231 L524 231Z" fill="#a999be"/>
+              <path d="M296 146 Q299 133 308 125 M395 108 Q396 96 404 92 M497 145 Q502 129 510 125" stroke="white" stroke-width="10" opacity=".53" stroke-linecap="round"/>
+
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#carHalo)"/>
+          <g fill="#ffffff" opacity=".82"><ellipse cx="169" cy="240" rx="39" ry="14"/><circle cx="157" cy="231" r="19"/><circle cx="186" cy="229" r="23"/><ellipse cx="640" cy="385" rx="43" ry="16"/><circle cx="623" cy="376" r="19"/><circle cx="656" cy="376" r="22"/></g>
+          <path d="M143 706 Q398 725 658 706" fill="none" stroke="#d9898c" stroke-width="12" stroke-linecap="round" opacity=".36"/>
+          <use href="#carArt" opacity=".43" filter="url(#carGray)"/>
+          <use href="#carArt" clip-path="url(#carReveal)"/>
+          <text x="400" y="72" class="car-label" id="carLabel">AUTÍČKO SE VYBARVUJE!</text>
+          <text x="400" y="760" class="car-time" id="carTime">20:00</text>
+          <text x="400" y="793" class="car-progress" id="carProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock tractor-scene" id="tractorClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Traktor se při odpočítávání postupně vybarvuje." hidden>
+          <defs>
+            <radialGradient id="tractorHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#f4fff5"/><stop offset="1" stop-color="#e7f6e3"/></radialGradient>
+            <linearGradient id="tractorGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#aee5af"/><stop offset="1" stop-color="#64b88a"/></linearGradient>
+            <filter id="tractorGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="tractorReveal" clipPathUnits="userSpaceOnUse"><rect id="tractorFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="tractorArt" stroke-linejoin="round" stroke-linecap="round">
+
+<!-- zelený traktor s velkým kolem -->
+<path d="M299 432 V333 Q299 312 324 312 H448 Q469 312 469 333 V438" fill="#94d9ba" stroke="#508f79" stroke-width="11"/>
+<path d="M328 343 H439 V438 H328Z" fill="#bfe8f7" stroke="#70a8ad" stroke-width="7"/>
+<path d="M294 307 H478" stroke="#64b69b" stroke-width="19" stroke-linecap="round"/>
+<path d="M281 441 H494 Q537 434 559 461 L600 501 V552 H240 V502 Q244 461 281 441Z" fill="url(#tractorGreen)" stroke="#43856d" stroke-width="11"/>
+<path d="M505 441 H575 Q617 455 637 512 L649 550 H509Z" fill="#a9e7c3" stroke="#43856d" stroke-width="10"/>
+<rect x="544" y="486" width="67" height="32" rx="13" fill="#d0f9d4"/>
+<path d="M566 433 V374" stroke="#4d665e" stroke-width="15" stroke-linecap="round"/>
+<path d="M553 367 H580" stroke="#4d665e" stroke-width="13" stroke-linecap="round"/>
+<circle cx="309" cy="563" r="102" fill="#5a6269" stroke="#404a56" stroke-width="11"/>
+<circle cx="309" cy="563" r="66" fill="#8995a0" stroke="#b1bbc7" stroke-width="11"/>
+<circle cx="309" cy="563" r="28" fill="#d0e1e6"/>
+<circle cx="579" cy="581" r="66" fill="#5a6269" stroke="#404a56" stroke-width="9"/>
+<circle cx="579" cy="581" r="36" fill="#8995a0" stroke="#b1bbc7" stroke-width="9"/>
+<circle cx="579" cy="581" r="16" fill="#d0e1e6"/>
+<circle cx="490" cy="493" r="8" fill="#315a52"/>
+<path d="M500 512 Q530 527 554 511" fill="none" stroke="#487e68" stroke-width="6"/>
+<rect x="622" y="510" width="34" height="21" rx="8" fill="#ffdf8e"/>
+
+            
+
+              <!-- Veselé obláčky výfuku vedou až k vršku obrázku. -->
+              <path d="M566 371 C579 335 558 312 580 285 Q603 260 581 238 Q565 217 586 190" stroke="#8eb5a5" stroke-width="10" opacity=".5" fill="none" stroke-linecap="round"/>
+              <g fill="#c0dfd4" stroke="#84b8a6" stroke-width="6"><circle cx="588" cy="274" r="23"/><circle cx="601" cy="222" r="32"/><circle cx="578" cy="155" r="38"/></g>
+              <circle cx="564" cy="145" r="13" fill="#f3fff8" opacity=".7"/>
+
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#tractorHalo)"/>
+          <g fill="#ffffff" opacity=".82"><ellipse cx="169" cy="240" rx="39" ry="14"/><circle cx="157" cy="231" r="19"/><circle cx="186" cy="229" r="23"/><ellipse cx="640" cy="385" rx="43" ry="16"/><circle cx="623" cy="376" r="19"/><circle cx="656" cy="376" r="22"/></g>
+          <path d="M143 706 Q398 725 658 706" fill="none" stroke="#84b693" stroke-width="12" stroke-linecap="round" opacity=".36"/>
+          <use href="#tractorArt" opacity=".43" filter="url(#tractorGray)"/>
+          <use href="#tractorArt" clip-path="url(#tractorReveal)"/>
+          <text x="400" y="72" class="tractor-label" id="tractorLabel">TRAKTOR SE VYBARVUJE!</text>
+          <text x="400" y="760" class="tractor-time" id="tractorTime">20:00</text>
+          <text x="400" y="793" class="tractor-progress" id="tractorProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock firetruck-scene" id="firetruckClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Hasiči se při odpočítávání postupně vybarvuje." hidden>
+          <defs>
+            <radialGradient id="firetruckHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#fff7f3"/><stop offset="1" stop-color="#fff0e7"/></radialGradient>
+            <linearGradient id="fireRed" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9c9c"/><stop offset="1" stop-color="#ed626b"/></linearGradient>
+            <filter id="firetruckGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="firetruckReveal" clipPathUnits="userSpaceOnUse"><rect id="firetruckFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="firetruckArt" stroke-linejoin="round" stroke-linecap="round">
+
+              <!-- Hasičské auto s funkčně propojeným vysunutým žebříkem. -->
+              <!-- výsuvný žebřík je zezadu skutečně uchycen ke korbě -->
+              <path d="M344 434 L511 143" stroke="#8e9bb1" stroke-width="32" fill="none" stroke-linecap="round"/>
+              <path d="M366 446 L537 157" stroke="#8e9bb1" stroke-width="32" fill="none" stroke-linecap="round"/>
+              <path d="M344 434 L511 143 M366 446 L537 157" stroke="#c4e0f5" stroke-width="18" fill="none" stroke-linecap="round"/>
+              <g stroke="#718da5" stroke-width="10" stroke-linecap="round"><path d="M351 419 L373 433"/><path d="M375 378 L397 394"/><path d="M397 339 L421 354"/><path d="M420 300 L445 314"/><path d="M443 259 L468 274"/><path d="M467 221 L492 234"/><path d="M489 183 L514 199"/></g>
+              <path d="M495 122 L562 145 L547 178 L477 150Z" fill="#ffe5a1" stroke="#b98159" stroke-width="9"/>
+              <!-- rozšířená korba a kabina společně tvoří jedno auto -->
+              <path d="M177 468 Q181 451 198 451 H439 V589 H166 V492Z" fill="url(#fireRed)" stroke="#a64d55" stroke-width="10"/>
+              <path d="M437 419 H538 Q570 423 588 454 L647 513 V590 H437Z" fill="url(#fireRed)" stroke="#a64d55" stroke-width="10"/>
+              <path d="M468 444 H535 Q551 447 562 468 L587 498 H468Z" fill="#b7e7fc" stroke="#6999b1" stroke-width="8"/>
+              <path d="M442 434 V581" stroke="#a64d55" stroke-width="10"/>
+              <rect x="193" y="489" width="206" height="48" rx="13" fill="#ffb1a3" stroke="#d97875" stroke-width="7"/>
+              <rect x="204" y="504" width="174" height="14" rx="7" fill="#ffedc4"/>
+              <path d="M223 557 H403" stroke="#fff1df" stroke-width="14" stroke-linecap="round"/>
+              <path d="M590 521 H644" stroke="#ffefaf" stroke-width="20" stroke-linecap="round"/>
+              <rect x="320" y="428" width="110" height="22" rx="11" fill="#ffc36c" stroke="#b8784e" stroke-width="7"/>
+              <circle cx="374" cy="430" r="17" fill="#f8d089" stroke="#b8784e" stroke-width="7"/>
+              <rect x="384" y="409" width="35" height="19" rx="8" fill="#8cdaf8"/>
+              <!-- pohodová tvář na korbě -->
+              <circle cx="334" cy="556" r="7" fill="#6f3f4b"/><circle cx="363" cy="556" r="7" fill="#6f3f4b"/>
+              <path d="M335 571 Q348 583 363 569" stroke="#853e48" stroke-width="6" fill="none"/>
+              <!-- velká kola viditelná před karoserií -->
+              <circle cx="270" cy="600" r="60" fill="#454f63" stroke="#3c4355" stroke-width="10"/>
+              <circle cx="270" cy="600" r="31" fill="#e3eaf4" stroke="#95a5b9" stroke-width="7"/>
+              <circle cx="559" cy="600" r="60" fill="#454f63" stroke="#3c4355" stroke-width="10"/>
+              <circle cx="559" cy="600" r="31" fill="#e3eaf4" stroke="#95a5b9" stroke-width="7"/>
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#firetruckHalo)"/>
+          <g fill="#ffffff" opacity=".82"><ellipse cx="169" cy="240" rx="39" ry="14"/><circle cx="157" cy="231" r="19"/><circle cx="186" cy="229" r="23"/><ellipse cx="640" cy="385" rx="43" ry="16"/><circle cx="623" cy="376" r="19"/><circle cx="656" cy="376" r="22"/></g>
+          <path d="M143 706 Q398 725 658 706" fill="none" stroke="#dc8e84" stroke-width="12" stroke-linecap="round" opacity=".36"/>
+          <use href="#firetruckArt" opacity=".43" filter="url(#firetruckGray)"/>
+          <use href="#firetruckArt" clip-path="url(#firetruckReveal)"/>
+          <text x="400" y="72" class="firetruck-label" id="firetruckLabel">HASIČI VYRÁŽEJÍ!</text>
+          <text x="400" y="760" class="firetruck-time" id="firetruckTime">20:00</text>
+          <text x="400" y="793" class="firetruck-progress" id="firetruckProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock ocean-scene" id="oceanClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Mořský svět se při odpočítávání postupně vybarvuje." hidden>
+          <defs>
+            <radialGradient id="oceanHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#f2fcff"/><stop offset="1" stop-color="#dff4ff"/></radialGradient>
+            <linearGradient id="oceanBlue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a5e6fa"/><stop offset="1" stop-color="#62b7de"/></linearGradient>
+            <filter id="oceanGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="oceanReveal" clipPathUnits="userSpaceOnUse"><rect id="oceanFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="oceanArt" stroke-linejoin="round" stroke-linecap="round">
+
+<!-- mořský svět: velryba, rybky, hvězdice a korály -->
+<path d="M182 439 C207 369 302 334 426 349 C528 365 596 408 604 469 Q599 552 468 582 C366 600 253 558 212 518 Q182 508 164 541 Q160 490 182 439Z" fill="url(#oceanBlue)" stroke="#518db3" stroke-width="10"/>
+<path d="M181 441 Q123 404 117 359 Q156 366 183 393 Q197 343 225 335 Q228 385 216 431" fill="#85cbe3" stroke="#518db3" stroke-width="8"/>
+<path d="M291 529 Q390 573 500 532" fill="none" stroke="#bdefff" stroke-width="29" opacity=".9"/>
+<circle cx="471" cy="433" r="13" fill="#365f7e"/><circle cx="476" cy="428" r="4" fill="#fff"/>
+<path d="M510 477 Q541 493 557 467" fill="none" stroke="#366a87" stroke-width="6"/>
+<ellipse cx="481" cy="464" rx="26" ry="14" fill="#f7a9c8" opacity=".78"/>
+<path d="M333 352 C331 309 350 288 371 287 Q358 319 365 350" fill="#8cd1ed" stroke="#518db3" stroke-width="7"/>
+<path d="M396 355 C389 303 415 282 431 287 Q418 320 424 361" fill="#8cd1ed" stroke="#518db3" stroke-width="7"/>
+<path d="M583 355 Q631 322 666 351 Q635 356 622 378 Q645 401 670 398 Q631 434 592 395Z" fill="#ffc475" stroke="#d18b59" stroke-width="7"/>
+<circle cx="626" cy="370" r="6" fill="#745e6d"/>
+<path d="M615 577 Q650 540 676 573 Q656 581 640 607 Q663 630 676 622 Q646 667 611 621Z" fill="#fac5ba" stroke="#dc9c9c" stroke-width="6"/>
+<circle cx="642" cy="589" r="5" fill="#745e6d"/>
+<path d="M188 641 C162 590 159 570 181 542 Q184 594 204 610 Q207 576 239 555 Q228 605 232 641" fill="#73c69c" stroke="#4d9a79" stroke-width="7"/>
+<path d="M546 641 Q531 601 542 569 Q565 596 566 622 Q578 585 603 573 Q586 616 597 641" fill="#9bdd8e" stroke="#5eaa80" stroke-width="7"/>
+<path d="M294 640 L308 611 L323 640 L354 633 L331 656 L344 685 L310 668 L283 688 L289 656 L267 637Z" fill="#ffd27e" stroke="#d3a267" stroke-width="6"/>
+<circle cx="319" cy="643" r="4" fill="#855b5b"/>
+<circle cx="241" cy="310" r="13" fill="#caefff" stroke="#92cdda" stroke-width="4"/><circle cx="256" cy="272" r="8" fill="#caefff" stroke="#92cdda" stroke-width="3"/>
+
+            
+
+              <!-- Veselý vodotrysk vyrůstá z velrybího hřbetu až k hornímu okraji. -->
+              <path d="M374 298 Q371 243 359 188" fill="none" stroke="#73bce4" stroke-width="18" stroke-linecap="round"/>
+              <path d="M373 237 Q409 186 404 130 M364 226 Q332 180 335 135" fill="none" stroke="#73bce4" stroke-width="16" stroke-linecap="round"/>
+              <path d="M337 130 Q319 105 300 132 M402 127 Q413 107 431 126" fill="none" stroke="#96dffa" stroke-width="10" stroke-linecap="round"/>
+              <circle cx="301" cy="125" r="9" fill="#b9eafa"/><circle cx="433" cy="123" r="8" fill="#b9eafa"/>
+
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#oceanHalo)"/>
+          <g fill="#ffffff" opacity=".82"><ellipse cx="169" cy="240" rx="39" ry="14"/><circle cx="157" cy="231" r="19"/><circle cx="186" cy="229" r="23"/><ellipse cx="640" cy="385" rx="43" ry="16"/><circle cx="623" cy="376" r="19"/><circle cx="656" cy="376" r="22"/></g>
+          <path d="M143 706 Q398 725 658 706" fill="none" stroke="#8acada" stroke-width="12" stroke-linecap="round" opacity=".36"/>
+          <use href="#oceanArt" opacity=".43" filter="url(#oceanGray)"/>
+          <use href="#oceanArt" clip-path="url(#oceanReveal)"/>
+          <text x="400" y="72" class="ocean-label" id="oceanLabel">MOŘE SE VYBARVUJE!</text>
+          <text x="400" y="760" class="ocean-time" id="oceanTime">20:00</text>
+          <text x="400" y="793" class="ocean-progress" id="oceanProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock princess-scene" id="princessClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Princezna se při odpočítávání postupně vybarvuje." hidden>
+          <defs>
+            <radialGradient id="princessHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#fff5fb"/><stop offset="1" stop-color="#f8eafc"/></radialGradient>
+            <linearGradient id="princessPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc4df"/><stop offset="1" stop-color="#dba8eb"/></linearGradient>
+            <filter id="princessGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="princessReveal" clipPathUnits="userSpaceOnUse"><rect id="princessFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="princessArt" stroke-linejoin="round" stroke-linecap="round">
+
+<!-- princezna, korunka, šaty, kouzelná hůlka -->
+<path d="M337 237 C307 247 295 294 310 373 Q315 403 285 433 C350 456 458 455 510 432 Q482 409 489 371 C501 310 486 258 464 238" fill="#b67f54" stroke="#996145" stroke-width="9"/>
+<path d="M331 445 Q293 501 232 659 Q400 731 573 659 Q515 502 461 445Z" fill="url(#princessPink)" stroke="#b880c2" stroke-width="11"/>
+<path d="M319 553 Q400 616 477 550" fill="none" stroke="#ffe7f5" stroke-width="14"/>
+<path d="M279 651 Q400 685 523 652" fill="none" stroke="#f3bfef" stroke-width="12"/>
+<path d="M326 452 L350 408 H450 L474 453 Q438 492 400 492 Q362 492 326 452Z" fill="#ffa2cc" stroke="#be81c2" stroke-width="9"/>
+<path d="M336 446 Q292 457 267 507" stroke="#ffd4ad" stroke-width="21" fill="none" stroke-linecap="round"/>
+<path d="M467 446 Q501 455 516 507" stroke="#ffd4ad" stroke-width="21" fill="none" stroke-linecap="round"/>
+<circle cx="264" cy="510" r="13" fill="#ffd5b3"/><circle cx="518" cy="510" r="13" fill="#ffd5b3"/>
+<ellipse cx="400" cy="330" rx="91" ry="112" fill="#ffe2bd" stroke="#bd8d70" stroke-width="9"/>
+<path d="M312 317 Q313 215 405 217 Q501 220 492 314 Q475 293 460 270 Q405 315 338 280 Q325 308 312 317Z" fill="#b67f54" stroke="#996145" stroke-width="9"/>
+<ellipse cx="363" cy="343" rx="8" ry="13" fill="#5a4c61"/><ellipse cx="433" cy="343" rx="8" ry="13" fill="#5a4c61"/>
+<ellipse cx="348" cy="368" rx="18" ry="10" fill="#f8b1bc"/><ellipse cx="450" cy="368" rx="18" ry="10" fill="#f8b1bc"/>
+<path d="M380 385 Q401 404 423 385" stroke="#bb7c82" stroke-width="6" fill="none"/>
+<path d="M346 230 L326 147 L379 182 L401 122 L423 181 L475 146 L457 232Z" fill="#ffe18a" stroke="#d3a05e" stroke-width="9"/>
+<circle cx="401" cy="180" r="14" fill="#fa98bf"/>
+<path d="M516 497 L570 355" fill="none" stroke="#d3a66c" stroke-width="12" stroke-linecap="round"/>
+<path d="M570 309 L584 338 L616 343 L592 366 L598 397 L570 381 L542 397 L548 366 L523 343 L557 338Z" fill="#ffef9a" stroke="#d9b26b" stroke-width="6"/>
+
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#princessHalo)"/>
+          <g fill="#ffffff" opacity=".82"><ellipse cx="169" cy="240" rx="39" ry="14"/><circle cx="157" cy="231" r="19"/><circle cx="186" cy="229" r="23"/><ellipse cx="640" cy="385" rx="43" ry="16"/><circle cx="623" cy="376" r="19"/><circle cx="656" cy="376" r="22"/></g>
+          <path d="M143 706 Q398 725 658 706" fill="none" stroke="#d9a7ca" stroke-width="12" stroke-linecap="round" opacity=".36"/>
+          <use href="#princessArt" opacity=".43" filter="url(#princessGray)"/>
+          <use href="#princessArt" clip-path="url(#princessReveal)"/>
+          <text x="400" y="72" class="princess-label" id="princessLabel">PRINCEZNA SE VYBARVUJE!</text>
+          <text x="400" y="760" class="princess-time" id="princessTime">20:00</text>
+          <text x="400" y="793" class="princess-progress" id="princessProgress">0 % vybarveno</text>
+        </svg>
+        <svg class="clock knight-scene" id="knightClock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Rytíř se při odpočítávání postupně vybarvuje." hidden>
+          <defs>
+            <radialGradient id="knightHalo" cx="48%" cy="35%" r="70%"><stop stop-color="#f9fbff"/><stop offset="1" stop-color="#edf2ff"/></radialGradient>
+            <linearGradient id="knightArmor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6e1fa"/><stop offset="1" stop-color="#98afd8"/></linearGradient>
+            <filter id="knightGray" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/></filter>
+            <clipPath id="knightReveal" clipPathUnits="userSpaceOnUse"><rect id="knightFillRect" x="0" y="720" width="800" height="0"/></clipPath>
+            <g id="knightArt" stroke-linejoin="round" stroke-linecap="round">
+
+<!-- rytíř s bezpečně zaobleným mečem a štítem -->
+<path d="M345 506 L329 669 Q328 691 346 694 H393 Q407 690 405 675 L411 538Z" fill="#7c90b7" stroke="#67799e" stroke-width="10"/>
+<path d="M427 515 L434 675 Q433 691 453 695 H504 Q521 687 506 671 L492 517Z" fill="#7c90b7" stroke="#67799e" stroke-width="10"/>
+<path d="M310 460 Q304 401 337 390 H476 Q514 400 517 460 L520 551 Q405 597 306 551Z" fill="url(#knightArmor)" stroke="#6c82a5" stroke-width="11"/>
+<path d="M353 449 L468 449 M352 479 L464 479" stroke="#e2e9ff" stroke-width="14" opacity=".9"/>
+<path d="M334 402 Q298 404 284 459" stroke="#a1b7dc" stroke-width="42" stroke-linecap="round"/>
+<path d="M481 405 Q523 411 532 466" stroke="#a1b7dc" stroke-width="42" stroke-linecap="round"/>
+<circle cx="279" cy="474" r="21" fill="#f2cea9"/><circle cx="534" cy="483" r="21" fill="#f2cea9"/>
+<path d="M326 279 Q332 204 410 194 Q491 209 489 279 L481 349 Q414 387 331 350Z" fill="#aabce1" stroke="#687c9d" stroke-width="11"/>
+<path d="M332 274 Q407 300 488 275" stroke="#e1ecff" stroke-width="16" fill="none"/>
+<path d="M349 295 Q409 278 470 295 L467 323 Q408 345 350 323Z" fill="#d9e8f4"/>
+<ellipse cx="373" cy="309" rx="8" ry="11" fill="#344b6b"/><ellipse cx="443" cy="309" rx="8" ry="11" fill="#344b6b"/>
+<path d="M390 328 Q410 342 429 328" fill="none" stroke="#60749a" stroke-width="5"/>
+<path d="M409 179 Q392 157 405 126 Q431 147 430 174" fill="#ffb47a" stroke="#ce8b69" stroke-width="6"/>
+<path d="M239 443 L243 621" fill="none" stroke="#8e9dba" stroke-width="14" stroke-linecap="round"/>
+<path d="M220 452 L258 453 M231 614 L256 614" stroke="#e2b46f" stroke-width="16" stroke-linecap="round"/>
+<path d="M228 423 Q238 375 249 423Z" fill="#dce9fb" stroke="#7c90b7" stroke-width="7"/>
+<path d="M529 473 L626 483 L622 587 Q573 630 527 588Z" fill="#9aaeed" stroke="#677da9" stroke-width="10"/>
+<path d="M575 506 L587 534 L613 539 L590 558 L596 584 L573 568 L549 583 L558 556 L538 537 L564 533Z" fill="#ffe49f" stroke="#d4ad6a" stroke-width="5"/>
+
+            </g>
+          </defs>
+          <circle cx="400" cy="366" r="305" fill="url(#knightHalo)"/>
+          <g fill="#ffffff" opacity=".82"><ellipse cx="169" cy="240" rx="39" ry="14"/><circle cx="157" cy="231" r="19"/><circle cx="186" cy="229" r="23"/><ellipse cx="640" cy="385" rx="43" ry="16"/><circle cx="623" cy="376" r="19"/><circle cx="656" cy="376" r="22"/></g>
+          <path d="M143 706 Q398 725 658 706" fill="none" stroke="#9ba9c5" stroke-width="12" stroke-linecap="round" opacity=".36"/>
+          <use href="#knightArt" opacity=".43" filter="url(#knightGray)"/>
+          <use href="#knightArt" clip-path="url(#knightReveal)"/>
+          <text x="400" y="72" class="knight-label" id="knightLabel">RYTÍŘ SE VYBARVUJE!</text>
+          <text x="400" y="760" class="knight-time" id="knightTime">20:00</text>
+          <text x="400" y="793" class="knight-progress" id="knightProgress">0 % vybarveno</text>
+        </svg>
+      </div>
+      <aside class="scale-panel" aria-label="Nastavení měřítka ciferníku">
+        <label class="scale-title" for="dialScale">Kruh má</label>
+        <output class="scale-value" for="dialScale" id="scaleValue">60 min</output>
+        <span class="scale-edge" aria-hidden="true">víc času</span>
+        <div class="vertical-range-box"><div id="dialScale" class="scale-track" role="slider" tabindex="0" aria-valuemin="20" aria-valuemax="60" aria-valuenow="60" aria-orientation="vertical" aria-label="Počet minut na celý ciferník" aria-describedby="scaleHelp" style="--pos:50%"><span class="scale-thumb"></span></div></div>
+        <span class="scale-edge" aria-hidden="true">míň času</span>
+        <div class="scale-subtitle" id="scaleHelp">20 min = 33 % kruhu</div>
+      </aside>
+      </div>
+      <div class="actions"><button class="action primary" id="startPause"><span id="startIcon">▶</span><span id="startText">Spustit čas</span></button><button class="action secondary" id="reset">↻ <span>Znovu</span></button></div>
+      <p class="footnote" id="statusText" role="status">Jak duha mizí, čas utíká. 🦄</p>
+    </main>
+  </div>
+<script>
+(() => {
+  'use strict';
+  const MAX_MIN = 60;
+  const $ = id => document.getElementById(id);
+  const dialTicks = $('ticks'), numbers = $('numbers'), track = $('track'), rainbow = $('rainbow');
+  const slider = $('duration'), selection = $('selectedTime'), scaleSlider = $('dialScale'), scaleValue = $('scaleValue'), scaleHelp = $('scaleHelp'), time = $('clockTime');
+  const label = $('remainingLabel'), message = $('clockMessage'), status = $('statusText');
+  const btn = $('startPause'), btnIcon = $('startIcon'), btnText = $('startText');
+  const finishedOverlay = $('confetti'), endpoint = $('movingUnicorn'), sector = $('sectorPath');
+  let theme = 'rainbow';
+  const sceneThemes = {
+    dino: {
+      svg: $('dinoClock'), fill: $('dinoFillRect'), time: $('dinoTime'), label: $('dinoLabel'), progress: $('dinoProgress'),
+      baseY: 715, span: 640,
+      activeLabel: 'DINO SE VYBARVUJE!', doneLabel: 'HURÁ, DINO JE HOTOVÝ!',
+      progressText: pct => `${pct} % vybarveno`,
+      finishedStatus: 'Dinosaurus je celý vybarvený! 🦕',
+      runningStatus: 'Sleduj, jak se dinosaurus vybarvuje. 🦕',
+      idleStatus: 'S každou minutou bude dinosaurus barevnější. 🌿',
+      confettiClass: 'unicorn-drop dino-drop',
+      confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#dinoArt"/></svg>'
+    },
+    unicorn: {
+      svg: $('unicornClock'), fill: $('unicornFillRect'), time: $('unicornTime'), label: $('unicornLabel'), progress: $('unicornProgress'),
+      baseY: 720, span: 650,
+      activeLabel: 'JEDNOROŽEC SE VYBARVUJE!', doneLabel: 'HURÁ, JEDNOROŽEC JE HOTOVÝ!',
+      progressText: pct => `${pct} % vybarveno`,
+      finishedStatus: 'Jednorožec je celý vybarvený! 🦄',
+      runningStatus: 'Sleduj, jak se jednorožec vybarvuje. 🦄',
+      idleStatus: 'S každou minutou bude jednorožec barevnější. ✨',
+      confettiClass: 'unicorn-drop unicorn-body-drop',
+      confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#unicornArt"/></svg>'
+    },
+    rocket: {
+      svg: $('rocketClock'), fill: $('rocketFillRect'), time: $('rocketTime'), label: $('rocketLabel'), progress: $('rocketProgress'),
+      baseY: 720, span: 650,
+      activeLabel: 'RAKETA STARTUJE!', doneLabel: 'HURÁ, RAKETA DOLETĚLA!',
+      progressText: pct => `${pct} % připraveno`,
+      finishedStatus: 'Raketa doletěla do vesmíru! 🚀',
+      runningStatus: 'Sleduj, jak se raketa vybarvuje. 🚀',
+      idleStatus: 'S každou minutou je raketa připravenější ke startu. 🌌',
+      confettiClass: 'unicorn-drop rocket-body-drop',
+      confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#rocketArt"/></svg>'
+    },
+    digger: {
+      svg: $('diggerClock'), fill: $('diggerFillRect'), time: $('diggerTime'), label: $('diggerLabel'), progress: $('diggerProgress'),
+      baseY: 720, span: 650,
+      activeLabel: 'BAGR KOPE!', doneLabel: 'HURÁ, BAGR DOKOPAL!',
+      progressText: pct => `${pct} % vykopáno`,
+      finishedStatus: 'Bagr má hotovo! 🚜',
+      runningStatus: 'Sleduj, jak se bagr vybarvuje. 🚜',
+      idleStatus: 'S každou minutou bude bagr barevnější. 🏗️',
+      confettiClass: 'unicorn-drop digger-body-drop',
+      confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#diggerArt"/></svg>'
+    },
+    giraffe: {
+      svg: $('giraffeClock'), fill: $('giraffeFillRect'), time: $('giraffeTime'), label: $('giraffeLabel'), progress: $('giraffeProgress'),
+      baseY: 720, span: 650,
+      activeLabel: 'ŽIRAFA ROSTE DO BAREV!', doneLabel: 'HURÁ, ŽIRAFA JE HOTOVÁ!',
+      progressText: pct => `${pct} % vybarveno`,
+      finishedStatus: 'Žirafa je celá vybarvená! 🦒',
+      runningStatus: 'Sleduj, jak se žirafa vybarvuje. 🦒',
+      idleStatus: 'S každou minutou bude žirafa barevnější. 🌿',
+      confettiClass: 'unicorn-drop giraffe-body-drop',
+      confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#giraffeArt"/></svg>'
+    }
+  };
+
+
+  sceneThemes.car = {
+    svg: $('carClock'), fill: $('carFillRect'), time: $('carTime'), label: $('carLabel'), progress: $('carProgress'),
+    baseY: 720, span: 650,
+    activeLabel: 'AUTÍČKO SE VYBARVUJE!', doneLabel: 'HURÁ, AUTÍČKO JE HOTOVÉ!',
+    progressText: pct => `${pct} % vybarveno`,
+    finishedStatus: 'Autíčko je celé barevné! 🚗',
+    runningStatus: 'Sleduj, jak se autíčko vybarvuje. 🚗', idleStatus: 'Autíčko čeká na barvy. 🚗',
+    confettiClass: 'unicorn-drop car-body-drop',
+    confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#carArt"/></svg>'
+  };
+  sceneThemes.tractor = {
+    svg: $('tractorClock'), fill: $('tractorFillRect'), time: $('tractorTime'), label: $('tractorLabel'), progress: $('tractorProgress'),
+    baseY: 720, span: 650,
+    activeLabel: 'TRAKTOR SE VYBARVUJE!', doneLabel: 'HURÁ, TRAKTOR JE HOTOVÝ!',
+    progressText: pct => `${pct} % vybarveno`,
+    finishedStatus: 'Traktor je celý barevný! 🚜',
+    runningStatus: 'Sleduj, jak se traktor vybarvuje. 🚜', idleStatus: 'Traktor čeká na barvy. 🌱',
+    confettiClass: 'unicorn-drop tractor-body-drop',
+    confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#tractorArt"/></svg>'
+  };
+  sceneThemes.firetruck = {
+    svg: $('firetruckClock'), fill: $('firetruckFillRect'), time: $('firetruckTime'), label: $('firetruckLabel'), progress: $('firetruckProgress'),
+    baseY: 720, span: 650,
+    activeLabel: 'HASIČI VYRÁŽEJÍ!', doneLabel: 'HURÁ, HASIČI JSOU HOTOVÍ!',
+    progressText: pct => `${pct} % vybarveno`,
+    finishedStatus: 'Hasičské auto je celé barevné! 🚒',
+    runningStatus: 'Sleduj, jak se hasičské auto vybarvuje. 🚒', idleStatus: 'Hasiči čekají na výjezd. 🚒',
+    confettiClass: 'unicorn-drop firetruck-body-drop',
+    confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#firetruckArt"/></svg>'
+  };
+  sceneThemes.ocean = {
+    svg: $('oceanClock'), fill: $('oceanFillRect'), time: $('oceanTime'), label: $('oceanLabel'), progress: $('oceanProgress'),
+    baseY: 720, span: 650,
+    activeLabel: 'MOŘE SE VYBARVUJE!', doneLabel: 'HURÁ, MOŘE JE PLNÉ BAREV!',
+    progressText: pct => `${pct} % vybarveno`,
+    finishedStatus: 'Mořský svět září barvami! 🐳',
+    runningStatus: 'Sleduj, jak se mořský svět vybarvuje. 🐳', idleStatus: 'Mořští kamarádi čekají na barvy. 🐠',
+    confettiClass: 'unicorn-drop ocean-body-drop',
+    confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#oceanArt"/></svg>'
+  };
+  sceneThemes.princess = {
+    svg: $('princessClock'), fill: $('princessFillRect'), time: $('princessTime'), label: $('princessLabel'), progress: $('princessProgress'),
+    baseY: 720, span: 650,
+    activeLabel: 'PRINCEZNA SE VYBARVUJE!', doneLabel: 'HURÁ, PRINCEZNA JE HOTOVÁ!',
+    progressText: pct => `${pct} % vybarveno`,
+    finishedStatus: 'Princezna je celá barevná! 👸',
+    runningStatus: 'Sleduj, jak se princezna vybarvuje. 👸', idleStatus: 'Princezna čeká na své barvy. ✨',
+    confettiClass: 'unicorn-drop princess-body-drop',
+    confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#princessArt"/></svg>'
+  };
+  sceneThemes.knight = {
+    svg: $('knightClock'), fill: $('knightFillRect'), time: $('knightTime'), label: $('knightLabel'), progress: $('knightProgress'),
+    baseY: 720, span: 650,
+    activeLabel: 'RYTÍŘ SE VYBARVUJE!', doneLabel: 'HURÁ, RYTÍŘ JE HOTOVÝ!',
+    progressText: pct => `${pct} % vybarveno`,
+    finishedStatus: 'Rytíř je celý barevný! 🛡️',
+    runningStatus: 'Sleduj, jak se rytíř vybarvuje. 🛡️', idleStatus: 'Rytíř čeká na dobrodružství. ⚔️',
+    confettiClass: 'unicorn-drop knight-body-drop',
+    confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#knightArt"/></svg>'
+  };
+  const unicornMarkup = `<svg viewBox="-55 -65 110 120" aria-hidden="true"><path d="M-26,-16 C-47,-18 -50,16 -31,32 C-47,29 -42,44 -24,43 C-38,53 -17,59 -4,43" fill="#a79aed" stroke="#9684dc" stroke-width="2.5"/><path d="M-33,-16 C-52,-5 -42,6 -37,9" fill="none" stroke="#82d8ea" stroke-width="8" stroke-linecap="round"/><path d="M-40,11 C-40,23 -26,31 -34,38" fill="none" stroke="#f6a7bd" stroke-width="8" stroke-linecap="round"/><path d="M-20,-28 L-13,-59 L1,-26" fill="#f8e59f" stroke="#e2bf76" stroke-width="2.6" stroke-linejoin="round"/><path d="M-25,-20 C-40,-44 -45,-29 -32,-5 M22,-21 C35,-43 47,-25 34,-3" fill="#fff" stroke="#ddd2ef" stroke-width="3"/><path d="M-28,-18 C-35,-33 -39,-26 -29,-9 M29,-18 C35,-31 42,-22 32,-9" fill="#f8b8cb"/><path d="M-38,-4 C-38,-34 36,-41 40,-3 L42,22 Q31,47 4,48 Q-30,49 -40,23Z" fill="white" stroke="#e3d8f0" stroke-width="3"/><path d="M-40,-7 C-35,-25 -22,-28 -10,-28 Q-22,-8 -33,-6" fill="#b6a9f2"/><path d="M-39,1 C-32,-8 -23,-6 -19,-5" fill="none" stroke="#77d2e8" stroke-width="7" stroke-linecap="round"/><path d="M11,10 Q17,18 24,10" stroke="#696586" stroke-width="3.4" stroke-linecap="round" fill="none"/><ellipse cx="31" cy="24" rx="9" ry="5.5" fill="#ffa8bd" opacity=".75"/><ellipse cx="-27" cy="24" rx="8" ry="5.5" fill="#ffa8bd" opacity=".75"/><circle cx="-1" cy="28" r="2.5" fill="#d5bfdf"/><path d="M-17,-35 Q-2,-44 13,-34" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>`;
+  const palette = ['#f18b9f','#ffb874','#ffdd75','#9ddc8e','#6ed5c7','#7dbce8','#b8a0ed'];
+  const bands = [];
+  let selected = 20, dialMax = 60, scaleCustomized = false, remainingMs = 20 * 60000, running = false, finishAt = 0, frame = 0, alarmTimer = 0, muted = false, lastShown = -1, finishTimeout, audioCtx = null;
+  const ns = 'http://www.w3.org/2000/svg';
+  const create = (tag, attrs, parent, content) => { const el = document.createElementNS(ns,tag);Object.entries(attrs).forEach(([name,value])=>el.setAttribute(name,value));if(content!==undefined)el.textContent=content;parent.appendChild(el);return el; };
+  function drawScale(){
+    dialTicks.replaceChildren();numbers.replaceChildren();
+    // Stupnice se přepočítá na zvolené měřítko: například 10 min na kruh = 5 min na půlkruh.
+    const labelStep = dialMax <= 12 ? 1 : dialMax <= 24 ? 2 : dialMax <= 60 ? 5 : 10;
+    for(let i=0;i<60;i++){
+      const a=-Math.PI/2+i*2*Math.PI/60;
+      create('line',{x1:400+Math.cos(a)*326,y1:400+Math.sin(a)*326,x2:400+Math.cos(a)*334,y2:400+Math.sin(a)*334,class:'tick'},dialTicks);
+    }
+    for(let value=0;value<dialMax;value+=labelStep){
+      const a=-Math.PI/2+2*Math.PI*value/dialMax;
+      create('line',{x1:400+Math.cos(a)*315,y1:400+Math.sin(a)*315,x2:400+Math.cos(a)*336,y2:400+Math.sin(a)*336,class:'tick major'},dialTicks);
+      create('text',{x:400+Math.cos(a)*352,y:400+Math.sin(a)*352,class:'dial-number'+(value===0?' zero':'')},numbers,String(value));
+    }
+  }
+  function updateScaleControls(){
+    scaleSlider.setAttribute('aria-valuemin',String(selected));
+    scaleSlider.setAttribute('aria-valuenow',String(dialMax));
+    const fraction=(MAX_MIN===selected?0:(MAX_MIN-dialMax)/(MAX_MIN-selected));
+    scaleSlider.style.setProperty('--pos',`${Math.max(0,Math.min(100,fraction*100))}%`);
+    scaleValue.textContent=`${dialMax} min`;
+    const percent=Math.round(100*selected/dialMax);
+    scaleHelp.textContent=`${readableMinutes(selected)} = ${percent} % kruhu`;
+    scaleSlider.setAttribute('aria-valuetext',`${dialMax} minut na celý ciferník`);
+  }
+  function setDialScale(value, fromUser=true){
+    const next=Math.max(selected,Math.min(MAX_MIN,Number(value)||selected));
+    dialMax=next;
+    if(fromUser)scaleCustomized=true;
+    updateScaleControls();drawScale();paint();
+  }
+  palette.forEach((color,i)=>{
+    const r=292-i*18;
+    create('circle',{cx:400,cy:400,r,transform:'rotate(-90 400 400)'},track);
+    const circle=create('circle',{cx:400,cy:400,r,stroke:color,pathLength:120,transform:'rotate(-90 400 400)','stroke-dasharray':'20 100'},rainbow);
+    bands.push(circle);
+  });
+  function readableMinutes(n){return n+' min';}
+  function clockFormat(ms){
+    const total=Math.ceil(Math.max(0,ms)/1000),m=Math.floor(total/60),s=total%60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  function wedgePath(fraction){
+    if(fraction>=.999999) return 'M 400 85 A 315 315 0 1 1 399.99 85 Z';
+    if(fraction<=0) return 'M400 400 L400 85 Z';
+    const angle=2*Math.PI*fraction-Math.PI/2, x=400+315*Math.cos(angle), y=400+315*Math.sin(angle);
+    return `M400 400 L400 85 A315 315 0 ${fraction>.5?1:0} 1 ${x} ${y} Z`;
+  }
+  // Každé SVG se měří podle své skutečně nakreslené ilustrace, ne podle prázdného pozadí.
+  // Špičky uší, žebříku, ramen a dekorací se tak obarví až těsně u konce odpočtu.
+  function calibrateSceneBounds(){
+    for (const [key, scene] of Object.entries(sceneThemes)) {
+      const hadHidden=scene.svg.hasAttribute('hidden');
+      scene.svg.removeAttribute('hidden');
+      const art=scene.svg.querySelector(`#${key}Art`);
+      if (art) {
+        const bounds=art.getBBox();
+        if (bounds.height>10) {
+          scene.baseY=Math.min(715,bounds.y+bounds.height+3);
+          scene.span=scene.baseY-Math.max(75,bounds.y-1);
+        }
+      }
+      if(hadHidden) scene.svg.setAttribute('hidden','');
+    }
+  }
+  function paint(){
+    const leftMin=Math.max(0,remainingMs/60000),f=Math.min(1,leftMin/dialMax);
+    const arcLength=120*f;
+    for(const band of bands)band.setAttribute('stroke-dasharray',`${arcLength} ${120-arcLength}`);
+    sector.setAttribute('d',wedgePath(f));
+    if(f<=.00001){endpoint.style.display='none';}else{
+      endpoint.style.display='';
+      const a=-Math.PI/2+f*2*Math.PI;
+      endpoint.setAttribute('transform',`translate(${(400+246*Math.cos(a)).toFixed(2)} ${(400+246*Math.sin(a)).toFixed(2)}) scale(.9)`);
+    }
+    const progressed=Math.max(0,Math.min(1,1-remainingMs/(selected*60000)));
+    const pct=Math.floor(progressed*100);
+    Object.values(sceneThemes).forEach(scene=>{
+      scene.fill.setAttribute('y',String(scene.baseY-scene.span*progressed));
+      scene.fill.setAttribute('height',String(scene.span*progressed));
+      scene.progress.textContent=scene.progressText(pct);
+      scene.label.textContent=remainingMs<=0?scene.doneLabel:scene.activeLabel;
+    });
+    const displayed=Math.ceil(remainingMs/1000);
+    if(displayed!==lastShown){
+      lastShown=displayed;
+      const formatted=clockFormat(remainingMs);
+      time.textContent=formatted;
+      Object.values(sceneThemes).forEach(scene=>scene.time.textContent=formatted);
+      time.classList.toggle('long',false);
+    }
+    const activeScene=sceneThemes[theme];
+    if(remainingMs<=0){
+      label.textContent='ČAS VYPRŠEL!';label.classList.add('timed-out');message.textContent='Hurá, dokázali jsme to! 🎉';
+      status.textContent=activeScene?activeScene.finishedStatus:'Konec čekání! Duha se schovala. 🌟';
+    } else {
+      label.textContent='ZBÝVÁ JEŠTĚ';label.classList.remove('timed-out');
+      message.textContent=running?'jednorožci odpočítávají 🦄':'a duha kouzlí dál ✨';
+      status.textContent=activeScene?(running?activeScene.runningStatus:activeScene.idleStatus):(running?'Pozoruj, jak duha pomalu mizí. 🌈':'Jak duha mizí, čas utíká. 🦄');
+    }
+    btnIcon.textContent=running?'❚❚':'▶';btnText.textContent=running?'Pozastavit':remainingMs<=0?'Spustit znovu':remainingMs<selected*60000?'Pokračovat':'Spustit čas';
+  }
+  function setTheme(next){
+    theme=['rainbow',...Object.keys(sceneThemes)].includes(next)?next:'rainbow';
+    Object.keys(sceneThemes).forEach(name=>document.body.classList.toggle(`is-${name}`,theme===name));
+    $('clock').toggleAttribute('hidden',theme!=='rainbow');
+    Object.entries(sceneThemes).forEach(([name,scene])=>scene.svg.toggleAttribute('hidden',theme!==name));
+    const chosen = allThemes.find(item=>item.id===theme) || allThemes[0];
+    $('triggerEmoji').textContent=chosen.emoji;
+    $('triggerLabel').textContent=`Vybrat motiv · ${chosen.label}`;
+    paint();
+  }
+  function halt(){running=false;cancelAnimationFrame(frame);clearTimeout(alarmTimer);alarmTimer=0;}
+  function hideConfetti(){clearTimeout(finishTimeout);finishedOverlay.classList.remove('show');finishedOverlay.innerHTML='';}
+  function syncPresets(){document.querySelectorAll('[data-minutes]').forEach(button=>button.classList.toggle('active',Number(button.dataset.minutes)===selected));}
+  function setMinutes(value){
+    halt();hideConfetti();selected=Math.min(MAX_MIN,Math.max(1,Number(value)||1));remainingMs=selected*60000;lastShown=-1;
+    slider.value=String(selected);selection.textContent=readableMinutes(selected);
+    const preferredScale=scaleCustomized?dialMax:60;
+    dialMax=Math.max(selected,preferredScale);updateScaleControls();drawScale();syncPresets();paint();
+  }
+  function unlockAudio(){
+    if(!audioCtx){
+      try{const AudioContext=window.AudioContext||window.webkitAudioContext;
+        if(AudioContext)audioCtx=new AudioContext();
+      }catch(e){/* Prohlížeč nepovoluje zvuk. */}
+    }
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+  }
+  // Jemná zvonkohra: tříkrát zopakovaný motiv s delším dozníváním.
+  // AudioContext vytvoříme už při kliknutí na Spustit kvůli omezením mobilních prohlížečů.
+  function ringBell(preview=false){
+    if(muted&&!preview)return;
+    unlockAudio();if(!audioCtx)return;
+    const ctx=audioCtx,start=ctx.currentTime+.035;
+    const motif=[1046.5,1318.5,1568,2093,1568,1318.5];
+    const motifOffsets=[0,.34,.72,1.16,1.68,2.14];
+    const repeats=3;
+    for(let repeat=0;repeat<repeats;repeat++){
+      motif.forEach((freq,i)=>{
+        const t=start+motifOffsets[i]+repeat*2.35;
+        [[1,.085],[2.01,.026],[3.92,.012]].forEach(([partial,volume])=>{
+          const o=ctx.createOscillator(),g=ctx.createGain();
+          o.type='sine';o.frequency.setValueAtTime(freq*partial,t);
+          g.gain.setValueAtTime(.00001,t);
+          g.gain.exponentialRampToValueAtTime(volume*(repeat===2?1.1:1),t+.014);
+          g.gain.exponentialRampToValueAtTime(.00001,t+(partial===1?2.05:.95));
+          o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+2.15);
+          o.onended=()=>{o.disconnect();g.disconnect();};
+        });
+      });
+    }
+  }
+  function celebrate(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    hideConfetti();finishedOverlay.classList.add('show');
+    const activeScene=sceneThemes[theme];
+    for(let i=0;i<28;i++){
+      const part=document.createElement('span');
+      part.className=activeScene?activeScene.confettiClass:'unicorn-drop';
+      part.style.left=(Math.random()*100)+'%';
+      part.style.animationDelay=(Math.random()*1.6)+'s';
+      part.style.animationDuration=(4.9+Math.random()*2.4)+'s';
+      part.style.setProperty('--dx',(Math.random()*320-160)+'px');
+      part.style.setProperty('--spin',`${Math.random()*180-90}deg`);
+      part.innerHTML=activeScene?activeScene.confettiSvg:unicornMarkup;
+      finishedOverlay.appendChild(part);
+    }
+    finishTimeout=setTimeout(hideConfetti,7600);
+  }
+  function complete(){
+    halt();remainingMs=0;paint();ringBell();celebrate();
+  }
+  function scheduleAlarm(){
+    alarmTimer=setTimeout(()=>{
+      if(!running)return;
+      remainingMs=Math.max(0,finishAt-performance.now());
+      if(remainingMs===0)complete();else scheduleAlarm();
+    },Math.max(1,remainingMs));
+  }
+  function tick(now){
+    if(!running)return;
+    remainingMs=Math.max(0,finishAt-now);
+    if(remainingMs===0){complete();return;}
+    paint();frame=requestAnimationFrame(tick);
+  }
+  function toggle(){
+    if(running){halt();paint();return;}
+    hideConfetti();if(remainingMs<=0)remainingMs=selected*60000;
+    unlockAudio();running=true;finishAt=performance.now()+remainingMs;scheduleAlarm();paint();frame=requestAnimationFrame(tick);
+  }
+  // Posuvníky mají vlastní dotykové/pointer ovládání, aby reagovaly i na telefonu.
+  // Nativní input/change události zůstávají pro klávesnici a přístupnost.
+  slider.addEventListener('input',()=>setMinutes(slider.value));
+  slider.addEventListener('change',()=>setMinutes(slider.value));
+  function setFromHorizontalPoint(clientX){
+    const r=slider.getBoundingClientRect();
+    if(!r.width)return;
+    const x=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+    const next=Math.round(1+x*(MAX_MIN-1));
+    if(next!==selected)setMinutes(next);
+  }
+  let horizontalDrag=false;
+  slider.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;horizontalDrag=true;try{slider.setPointerCapture(e.pointerId);}catch(_){}setFromHorizontalPoint(e.clientX);});
+  slider.addEventListener('pointermove',e=>{if(horizontalDrag)setFromHorizontalPoint(e.clientX);});
+  const stopHorizontal=()=>{horizontalDrag=false;};
+  slider.addEventListener('pointerup',stopHorizontal);
+  slider.addEventListener('pointercancel',stopHorizontal);
+  // iOS používá i touch události: těmito záložními handlery lze slider táhnout prstem.
+  slider.addEventListener('touchmove',e=>{if(e.touches.length===1){setFromHorizontalPoint(e.touches[0].clientX);e.preventDefault();}},{passive:false});
+  function setFromVerticalPoint(clientY){
+    const r=scaleSlider.getBoundingClientRect();
+    if(!r.height)return;
+    const position=Math.max(0,Math.min(1,(clientY-r.top)/r.height));
+    const value=Math.round(MAX_MIN-position*(MAX_MIN-selected));
+    if(value!==dialMax)setDialScale(value);
+  }
+  let verticalDrag=false;
+  scaleSlider.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;verticalDrag=true;try{scaleSlider.setPointerCapture(e.pointerId);}catch(_){}setFromVerticalPoint(e.clientY);e.preventDefault();});
+  scaleSlider.addEventListener('pointermove',e=>{if(verticalDrag)setFromVerticalPoint(e.clientY);});
+  scaleSlider.addEventListener('pointerup',()=>{verticalDrag=false;});
+  scaleSlider.addEventListener('pointercancel',()=>{verticalDrag=false;});
+  scaleSlider.addEventListener('touchstart',e=>{if(e.touches.length===1){setFromVerticalPoint(e.touches[0].clientY);e.preventDefault();}},{passive:false});
+  scaleSlider.addEventListener('touchmove',e=>{if(e.touches.length===1){setFromVerticalPoint(e.touches[0].clientY);e.preventDefault();}},{passive:false});
+  scaleSlider.addEventListener('keydown',e=>{
+    const k=e.key;
+    if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End'].includes(k))return;
+    e.preventDefault();
+    const delta=k==='PageUp'?10:k==='PageDown'?-10:k==='ArrowUp'||k==='ArrowRight'?1:-1;
+    setDialScale(k==='Home'?selected:k==='End'?MAX_MIN:dialMax+delta);
+  });
+
+  const allThemes = [
+    {id:'rainbow', label:'Duha', emoji:'🌈'},
+    {id:'dino', label:'Dinosaurus', emoji:'🦕'},
+    {id:'unicorn', label:'Jednorožec', emoji:'🦄'},
+    {id:'rocket', label:'Raketa', emoji:'🚀'},
+    {id:'digger', label:'Bagr', emoji:'🚜'},
+    {id:'giraffe', label:'Žirafa', emoji:'🦒'},
+    {id:'car', label:'Autíčko', emoji:'🚗'},
+    {id:'tractor', label:'Traktor', emoji:'🚜'},
+    {id:'firetruck', label:'Hasiči', emoji:'🚒'},
+    {id:'ocean', label:'Mořský svět', emoji:'🐳'},
+    {id:'princess', label:'Princezna', emoji:'👸'},
+    {id:'knight', label:'Rytíř', emoji:'🛡️'}
+  ];
+  const themeTrigger = $('themeTrigger');
+  const themeModal = $('themeModal');
+  const themeGrid = $('themeGrid');
+  let favoritesOnly = false;
+  let favorites = new Set();
+  try {
+    const stored = JSON.parse(localStorage.getItem('duhove-favorites-v1') || '[]');
+    if (Array.isArray(stored)) favorites = new Set(stored.filter(value => allThemes.some(item => item.id === value)));
+  } catch (_) { /* private browsing may disable storage */ }
+  function persistFavorites(){ try { localStorage.setItem('duhove-favorites-v1',JSON.stringify([...favorites])); } catch(_) {} }
+  function renderThemeOptions(){
+    $('showAllThemes').classList.toggle('active', !favoritesOnly);
+    $('showFavoriteThemes').classList.toggle('active', favoritesOnly);
+    $('showAllThemes').setAttribute('aria-pressed',String(!favoritesOnly));
+    $('showFavoriteThemes').setAttribute('aria-pressed',String(favoritesOnly));
+    themeGrid.replaceChildren();
+    const shown = allThemes.filter(item => !favoritesOnly || favorites.has(item.id));
+    if(!shown.length){
+      const empty=document.createElement('p');empty.className='theme-empty';empty.textContent='Ještě tu nemáš žádný oblíbený motiv. Přepni na Všechny motivy a označ srdíčko. ♡';
+      themeGrid.appendChild(empty);return;
+    }
+    for(const item of shown){
+      const tile=document.createElement('button');
+      tile.type='button';tile.className='theme-tile';tile.setAttribute('aria-label',`Vybrat: ${item.label}`);
+      tile.classList.toggle('active',theme===item.id);
+      tile.innerHTML=`<span class="theme-tile-emoji" aria-hidden="true">${item.emoji}</span><span class="theme-tile-name">${item.label}</span>`;
+      tile.addEventListener('click',()=>{setTheme(item.id);closeThemeDialog();});
+      const heart=document.createElement('button');
+      heart.type='button';heart.className='tile-heart';heart.classList.toggle('favorite',favorites.has(item.id));
+      heart.textContent=favorites.has(item.id)?'♥':'♡';heart.setAttribute('aria-label',favorites.has(item.id)?`Odebrat z oblíbených: ${item.label}`:`Přidat do oblíbených: ${item.label}`);
+      heart.setAttribute('aria-pressed',String(favorites.has(item.id)));
+      heart.addEventListener('click',event=>{event.stopPropagation();if(favorites.has(item.id))favorites.delete(item.id);else favorites.add(item.id);persistFavorites();renderThemeOptions();});
+      // The heart is visually attached to the tile but not nested inside its button.
+      const wrapper=document.createElement('div');wrapper.style.position='relative';wrapper.append(tile,heart);
+      themeGrid.appendChild(wrapper);
+    }
+  }
+  function openThemeDialog(){
+    favoritesOnly=false;renderThemeOptions();themeModal.hidden=false;document.body.classList.add('theme-modal-open');
+    themeTrigger.setAttribute('aria-expanded','true');$('closeThemes').focus();
+  }
+  function closeThemeDialog(){
+    if(themeModal.hidden)return;
+    themeModal.hidden=true;document.body.classList.remove('theme-modal-open');
+    themeTrigger.setAttribute('aria-expanded','false');themeTrigger.focus();
+  }
+  themeTrigger.addEventListener('click',openThemeDialog);
+  $('closeThemes').addEventListener('click',closeThemeDialog);
+  themeModal.addEventListener('click',e=>{if(e.target===themeModal)closeThemeDialog();});
+  $('showAllThemes').addEventListener('click',()=>{favoritesOnly=false;renderThemeOptions();});
+  $('showFavoriteThemes').addEventListener('click',()=>{favoritesOnly=true;renderThemeOptions();});
+  document.addEventListener('keydown',e=>{
+    if(themeModal.hidden)return;
+    if(e.key==='Escape'){e.preventDefault();closeThemeDialog();}
+    if(e.key==='Tab'){
+      const els=[...themeModal.querySelectorAll('button:not(:disabled)')].filter(el=>el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+      if(!els.length)return;
+      if(e.shiftKey && document.activeElement===els[0]){e.preventDefault();els.at(-1).focus();}
+      else if(!e.shiftKey && document.activeElement===els.at(-1)){e.preventDefault();els[0].focus();}
+    }
+  });
+
+  // Mezerník ovládá časovač i po kliknutí na ostatní ovládací tlačítka.
+  document.addEventListener('keydown',e=>{
+    if(e.code!=='Space'&&e.key!==' ')return;
+    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey || !themeModal.hidden)return;
+    const active=document.activeElement;
+    if(active&&(active.isContentEditable||active.matches('textarea, select, input:not([type="range"])')))return;
+    e.preventDefault();
+    if(!e.repeat)toggle();
+  },true);
+  $('previewSound').addEventListener('click',()=>ringBell(true));
+  document.querySelectorAll('[data-minutes]').forEach(button=>button.addEventListener('click',()=>setMinutes(button.dataset.minutes)));
+  btn.addEventListener('click',toggle);
+  $('reset').addEventListener('click',()=>setMinutes(selected));
+  $('soundBtn').addEventListener('click',()=>{muted=!muted;if(!muted)unlockAudio();$('soundBtn').textContent=muted?'🔇':'🔊';$('soundBtn').setAttribute('aria-label',muted?'Zapnout zvuk':'Vypnout zvuk');});
+  $('fullBtn').addEventListener('click',async()=>{
+    try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(e){}
+  });
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&running){remainingMs=Math.max(0,finishAt-performance.now());if(!remainingMs)complete();else paint();}});
+  calibrateSceneBounds();
+  setMinutes(20);
+})();
+</script>
+</body>
+</html>
