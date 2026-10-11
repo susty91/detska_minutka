@@ -21,12 +21,5 @@ Funguje na počítači, tabletu i telefonu a nepotřebuje přihlášení, datab�
 
 **Upozornění ke zvuku:** Mobilní prohlížeče někdy omezují zvuk na pozadí. Pokud telefon aplikaci uspí, závěrečné upozornění se může přehrát až po návratu do otevřené stránky.
 
-## Nasazení na Vercel
 
-1. V [novém projektu Vercelu](https://vercel.com/new) importujte repozitář `susty91/detska_minutka`.
-2. **Framework Preset**: `Other`; **Root Directory**: `./`.
-3. Nechte prázdný **Build Command** a nepřidávejte proměnné prostředí.
-4. Klikněte na **Deploy**. Aplikace poběží na přidělené adrese `*.vercel.app`.
-5. Každá další změna v GitHub větvi `main` se po propojení automaticky znovu nasadí.
-
-Projekt je statický. Pro sdílení s rodiči stačí poslat URL nasazené aplikace.
+Projekt je statický. Pro sdílení s stačí poslat URL nasazené aplikace.
