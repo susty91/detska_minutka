@@ -184,6 +184,24 @@
     @media(max-width:450px){.quick-tools{gap:7px}.quick-tools .theme-trigger{font-size:12px;padding:8px 6px}.preset-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.preset-grid .preset{min-height:49px}}
     @media(max-width:350px){.quick-tools .trigger-caret{display:none}}
     @media(min-width:781px) and (max-height:980px){.shell main .clock-frame{width:min(69vmin,690px)}}
+
+    /* Kompaktní ovládání: play/pause a znovu přímo pod nastavením času. */
+    .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+    header .actions{grid-column:2;grid-row:2;justify-self:center;gap:11px;margin-top:-5px;padding:0}
+    header .action{height:42px;width:61px;min-width:61px;padding:0;border-radius:15px;font-size:22px}
+    header #startIcon{font-size:20px;line-height:1}
+    header #reset{font-size:29px;line-height:1}
+    .quick-tools{margin:0 auto}
+    @media(max-width:780px){
+      header .actions{order:4;width:100%;margin-top:-3px;justify-content:center}
+      header .action{width:60px;height:43px;min-width:60px;padding:0}
+      main{gap:5px;justify-content:space-evenly}
+    }
+    @media(max-width:450px){
+      header{gap:7px;padding-bottom:5px}
+      header .actions{order:4;margin:0}
+      header .action{height:41px;min-width:57px;width:57px;border-radius:13px}
+    }
   </style>
 </head>
 <body>
@@ -195,6 +213,10 @@
         <label class="setting-title" for="duration">Nastav čas</label>
         <input id="duration" type="range" min="1" max="60" value="20" step="1" aria-label="Délka časovače v minutách" />
         <output class="selected-time" id="selectedTime" for="duration">20 min</output>
+      </div>
+      <div class="actions" aria-label="Ovládání časovače">
+        <button class="action primary" id="startPause" type="button" aria-label="Spustit čas" title="Spustit čas"><span id="startIcon" aria-hidden="true">▶</span><span id="startText" class="sr-only">Spustit čas</span></button>
+        <button class="action secondary" id="reset" type="button" aria-label="Znovu" title="Znovu"><span aria-hidden="true">↻</span></button>
       </div>
       <div class="top-extras"><button class="icon-button" id="soundBtn" aria-label="Vypnout zvuk" title="Zapnout nebo vypnout závěrečný zvuk">🔊</button><button class="icon-button" id="previewSound" aria-label="Vyzkoušet zvonění" title="Poslechnout závěrečný zvoneček">🔔</button><button class="icon-button" id="fullBtn" aria-label="Celá obrazovka" title="Celá obrazovka">⛶</button></div>
     </header>
@@ -324,7 +346,6 @@
           <!-- na začátku šedý dinosaurus, barvy stoupají odspodu -->
           <use href="#dinoArt" opacity=".43" filter="url(#dinoGray)"/>
           <use href="#dinoArt" clip-path="url(#dinoReveal)"/>
-          <text x="400" y="72" class="dino-label" id="dinoLabel">DINO SE VYBARVUJE!</text>
           <text x="400" y="760" class="dino-time" id="dinoTime">20:00</text>
           <text x="400" y="793" class="dino-progress" id="dinoProgress">0 % vybarveno</text>
         </svg>
@@ -387,7 +408,6 @@
           <!-- Šedý jednorožec se při běhu časovače postupně vybarvuje od kopýtek -->
           <use href="#unicornArt" opacity=".46" filter="url(#unicornGray)"/>
           <use href="#unicornArt" clip-path="url(#unicornReveal)"/>
-          <text x="400" y="72" class="unicorn-label" id="unicornLabel">JEDNOROŽEC SE VYBARVUJE!</text>
           <text x="400" y="760" class="unicorn-time" id="unicornTime">20:00</text>
           <text x="400" y="793" class="unicorn-progress" id="unicornProgress">0 % vybarveno</text>
         </svg>
@@ -425,7 +445,6 @@
           <g fill="#ffffff" opacity=".93"><circle cx="150" cy="265" r="6"/><circle cx="225" cy="164" r="5"/><circle cx="615" cy="234" r="6"/><circle cx="596" cy="495" r="5"/><circle cx="528" cy="132" r="4"/><circle cx="666" cy="166" r="4"/><circle cx="256" cy="530" r="4"/><circle cx="137" cy="468" r="5"/></g>
           <use href="#rocketArt" opacity=".42" filter="url(#rocketGray)"/>
           <use href="#rocketArt" clip-path="url(#rocketReveal)"/>
-          <text x="400" y="72" class="rocket-label" id="rocketLabel">RAKETA STARTUJE!</text>
           <text x="400" y="760" class="rocket-time" id="rocketTime">20:00</text>
           <text x="400" y="793" class="rocket-progress" id="rocketProgress">0 % připraveno</text>
         </svg>
@@ -478,7 +497,6 @@
           <circle cx="660" cy="143" r="42" fill="#ffe587" opacity=".83"/>
           <use href="#diggerArt" opacity=".45" filter="url(#diggerGray)"/>
           <use href="#diggerArt" clip-path="url(#diggerReveal)"/>
-          <text x="400" y="72" class="digger-label" id="diggerLabel">BAGR KOPE!</text>
           <text x="400" y="760" class="digger-time" id="diggerTime">20:00</text>
           <text x="400" y="793" class="digger-progress" id="diggerProgress">0 % vykopáno</text>
         </svg>
@@ -537,7 +555,6 @@
           <path d="M142 704 Q401 726 659 703" fill="none" stroke="#e9ca96" stroke-width="12" stroke-linecap="round"/>
           <use href="#giraffeArt" opacity=".43" filter="url(#giraffeGray)"/>
           <use href="#giraffeArt" clip-path="url(#giraffeReveal)"/>
-          <text x="400" y="72" class="giraffe-label" id="giraffeLabel">ŽIRAFA ROSTE DO BAREV!</text>
           <text x="400" y="760" class="giraffe-time" id="giraffeTime">20:00</text>
           <text x="400" y="793" class="giraffe-progress" id="giraffeProgress">0 % vybarveno</text>
         </svg>
@@ -581,7 +598,6 @@
           <path d="M143 706 Q398 725 658 706" fill="none" stroke="#d9898c" stroke-width="12" stroke-linecap="round" opacity=".36"/>
           <use href="#carArt" opacity=".43" filter="url(#carGray)"/>
           <use href="#carArt" clip-path="url(#carReveal)"/>
-          <text x="400" y="72" class="car-label" id="carLabel">AUTÍČKO SE VYBARVUJE!</text>
           <text x="400" y="760" class="car-time" id="carTime">20:00</text>
           <text x="400" y="793" class="car-progress" id="carProgress">0 % vybarveno</text>
         </svg>
@@ -626,7 +642,6 @@
           <path d="M143 706 Q398 725 658 706" fill="none" stroke="#84b693" stroke-width="12" stroke-linecap="round" opacity=".36"/>
           <use href="#tractorArt" opacity=".43" filter="url(#tractorGray)"/>
           <use href="#tractorArt" clip-path="url(#tractorReveal)"/>
-          <text x="400" y="72" class="tractor-label" id="tractorLabel">TRAKTOR SE VYBARVUJE!</text>
           <text x="400" y="760" class="tractor-time" id="tractorTime">20:00</text>
           <text x="400" y="793" class="tractor-progress" id="tractorProgress">0 % vybarveno</text>
         </svg>
@@ -672,7 +687,6 @@
           <path d="M143 706 Q398 725 658 706" fill="none" stroke="#dc8e84" stroke-width="12" stroke-linecap="round" opacity=".36"/>
           <use href="#firetruckArt" opacity=".43" filter="url(#firetruckGray)"/>
           <use href="#firetruckArt" clip-path="url(#firetruckReveal)"/>
-          <text x="400" y="72" class="firetruck-label" id="firetruckLabel">HASIČI VYRÁŽEJÍ!</text>
           <text x="400" y="760" class="firetruck-time" id="firetruckTime">20:00</text>
           <text x="400" y="793" class="firetruck-progress" id="firetruckProgress">0 % vybarveno</text>
         </svg>
@@ -718,7 +732,6 @@
           <path d="M143 706 Q398 725 658 706" fill="none" stroke="#8acada" stroke-width="12" stroke-linecap="round" opacity=".36"/>
           <use href="#oceanArt" opacity=".43" filter="url(#oceanGray)"/>
           <use href="#oceanArt" clip-path="url(#oceanReveal)"/>
-          <text x="400" y="72" class="ocean-label" id="oceanLabel">MOŘE SE VYBARVUJE!</text>
           <text x="400" y="760" class="ocean-time" id="oceanTime">20:00</text>
           <text x="400" y="793" class="ocean-progress" id="oceanProgress">0 % vybarveno</text>
         </svg>
@@ -756,7 +769,6 @@
           <path d="M143 706 Q398 725 658 706" fill="none" stroke="#d9a7ca" stroke-width="12" stroke-linecap="round" opacity=".36"/>
           <use href="#princessArt" opacity=".43" filter="url(#princessGray)"/>
           <use href="#princessArt" clip-path="url(#princessReveal)"/>
-          <text x="400" y="72" class="princess-label" id="princessLabel">PRINCEZNA SE VYBARVUJE!</text>
           <text x="400" y="760" class="princess-time" id="princessTime">20:00</text>
           <text x="400" y="793" class="princess-progress" id="princessProgress">0 % vybarveno</text>
         </svg>
@@ -795,7 +807,6 @@
           <path d="M143 706 Q398 725 658 706" fill="none" stroke="#9ba9c5" stroke-width="12" stroke-linecap="round" opacity=".36"/>
           <use href="#knightArt" opacity=".43" filter="url(#knightGray)"/>
           <use href="#knightArt" clip-path="url(#knightReveal)"/>
-          <text x="400" y="72" class="knight-label" id="knightLabel">RYTÍŘ SE VYBARVUJE!</text>
           <text x="400" y="760" class="knight-time" id="knightTime">20:00</text>
           <text x="400" y="793" class="knight-progress" id="knightProgress">0 % vybarveno</text>
         </svg>
@@ -809,7 +820,7 @@
         <div class="scale-subtitle" id="scaleHelp">20 min = 33 % kruhu</div>
       </aside>
       </div>
-      <div class="actions"><button class="action primary" id="startPause"><span id="startIcon">▶</span><span id="startText">Spustit čas</span></button><button class="action secondary" id="reset">↻ <span>Znovu</span></button></div>
+
       <div class="quick-tools">
         <button type="button" class="theme-trigger preset-trigger" id="presetTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="presetModal"><span class="trigger-emoji">⏱️</span><span class="trigger-label">Předvolené časy</span><span class="trigger-caret">▾</span></button>
         <div class="theme-picker">
@@ -819,7 +830,7 @@
       </button>
     </div>
       </div>
-      <p class="footnote" id="statusText" role="status">Jak duha mizí, čas utíká. 🦄</p>
+      <span class="sr-only" id="statusText" role="status" aria-live="polite">Jak duha mizí, čas utíká. 🦄</span>
     </main>
   </div>
 <script>
@@ -835,7 +846,7 @@
   let theme = 'rainbow';
   const sceneThemes = {
     dino: {
-      svg: $('dinoClock'), fill: $('dinoFillRect'), time: $('dinoTime'), label: $('dinoLabel'), progress: $('dinoProgress'),
+      svg: $('dinoClock'), fill: $('dinoFillRect'), time: $('dinoTime'), progress: $('dinoProgress'),
       baseY: 715, span: 640,
       activeLabel: 'DINO SE VYBARVUJE!', doneLabel: 'HURÁ, DINO JE HOTOVÝ!',
       progressText: pct => `${pct} % vybarveno`,
@@ -846,7 +857,7 @@
       confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#dinoArt"/></svg>'
     },
     unicorn: {
-      svg: $('unicornClock'), fill: $('unicornFillRect'), time: $('unicornTime'), label: $('unicornLabel'), progress: $('unicornProgress'),
+      svg: $('unicornClock'), fill: $('unicornFillRect'), time: $('unicornTime'), progress: $('unicornProgress'),
       baseY: 720, span: 650,
       activeLabel: 'JEDNOROŽEC SE VYBARVUJE!', doneLabel: 'HURÁ, JEDNOROŽEC JE HOTOVÝ!',
       progressText: pct => `${pct} % vybarveno`,
@@ -857,7 +868,7 @@
       confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#unicornArt"/></svg>'
     },
     rocket: {
-      svg: $('rocketClock'), fill: $('rocketFillRect'), time: $('rocketTime'), label: $('rocketLabel'), progress: $('rocketProgress'),
+      svg: $('rocketClock'), fill: $('rocketFillRect'), time: $('rocketTime'), progress: $('rocketProgress'),
       baseY: 720, span: 650,
       activeLabel: 'RAKETA STARTUJE!', doneLabel: 'HURÁ, RAKETA DOLETĚLA!',
       progressText: pct => `${pct} % připraveno`,
@@ -868,7 +879,7 @@
       confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#rocketArt"/></svg>'
     },
     digger: {
-      svg: $('diggerClock'), fill: $('diggerFillRect'), time: $('diggerTime'), label: $('diggerLabel'), progress: $('diggerProgress'),
+      svg: $('diggerClock'), fill: $('diggerFillRect'), time: $('diggerTime'), progress: $('diggerProgress'),
       baseY: 720, span: 650,
       activeLabel: 'BAGR KOPE!', doneLabel: 'HURÁ, BAGR DOKOPAL!',
       progressText: pct => `${pct} % vykopáno`,
@@ -879,7 +890,7 @@
       confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#diggerArt"/></svg>'
     },
     giraffe: {
-      svg: $('giraffeClock'), fill: $('giraffeFillRect'), time: $('giraffeTime'), label: $('giraffeLabel'), progress: $('giraffeProgress'),
+      svg: $('giraffeClock'), fill: $('giraffeFillRect'), time: $('giraffeTime'), progress: $('giraffeProgress'),
       baseY: 720, span: 650,
       activeLabel: 'ŽIRAFA ROSTE DO BAREV!', doneLabel: 'HURÁ, ŽIRAFA JE HOTOVÁ!',
       progressText: pct => `${pct} % vybarveno`,
@@ -893,7 +904,7 @@
 
 
   sceneThemes.car = {
-    svg: $('carClock'), fill: $('carFillRect'), time: $('carTime'), label: $('carLabel'), progress: $('carProgress'),
+    svg: $('carClock'), fill: $('carFillRect'), time: $('carTime'), progress: $('carProgress'),
     baseY: 720, span: 650,
     activeLabel: 'AUTÍČKO SE VYBARVUJE!', doneLabel: 'HURÁ, AUTÍČKO JE HOTOVÉ!',
     progressText: pct => `${pct} % vybarveno`,
@@ -903,7 +914,7 @@
     confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#carArt"/></svg>'
   };
   sceneThemes.tractor = {
-    svg: $('tractorClock'), fill: $('tractorFillRect'), time: $('tractorTime'), label: $('tractorLabel'), progress: $('tractorProgress'),
+    svg: $('tractorClock'), fill: $('tractorFillRect'), time: $('tractorTime'), progress: $('tractorProgress'),
     baseY: 720, span: 650,
     activeLabel: 'TRAKTOR SE VYBARVUJE!', doneLabel: 'HURÁ, TRAKTOR JE HOTOVÝ!',
     progressText: pct => `${pct} % vybarveno`,
@@ -913,7 +924,7 @@
     confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#tractorArt"/></svg>'
   };
   sceneThemes.firetruck = {
-    svg: $('firetruckClock'), fill: $('firetruckFillRect'), time: $('firetruckTime'), label: $('firetruckLabel'), progress: $('firetruckProgress'),
+    svg: $('firetruckClock'), fill: $('firetruckFillRect'), time: $('firetruckTime'), progress: $('firetruckProgress'),
     baseY: 720, span: 650,
     activeLabel: 'HASIČI VYRÁŽEJÍ!', doneLabel: 'HURÁ, HASIČI JSOU HOTOVÍ!',
     progressText: pct => `${pct} % vybarveno`,
@@ -923,7 +934,7 @@
     confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#firetruckArt"/></svg>'
   };
   sceneThemes.ocean = {
-    svg: $('oceanClock'), fill: $('oceanFillRect'), time: $('oceanTime'), label: $('oceanLabel'), progress: $('oceanProgress'),
+    svg: $('oceanClock'), fill: $('oceanFillRect'), time: $('oceanTime'), progress: $('oceanProgress'),
     baseY: 720, span: 650,
     activeLabel: 'MOŘE SE VYBARVUJE!', doneLabel: 'HURÁ, MOŘE JE PLNÉ BAREV!',
     progressText: pct => `${pct} % vybarveno`,
@@ -933,7 +944,7 @@
     confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#oceanArt"/></svg>'
   };
   sceneThemes.princess = {
-    svg: $('princessClock'), fill: $('princessFillRect'), time: $('princessTime'), label: $('princessLabel'), progress: $('princessProgress'),
+    svg: $('princessClock'), fill: $('princessFillRect'), time: $('princessTime'), progress: $('princessProgress'),
     baseY: 720, span: 650,
     activeLabel: 'PRINCEZNA SE VYBARVUJE!', doneLabel: 'HURÁ, PRINCEZNA JE HOTOVÁ!',
     progressText: pct => `${pct} % vybarveno`,
@@ -943,7 +954,7 @@
     confettiSvg: '<svg viewBox="0 0 800 800" aria-hidden="true"><use href="#princessArt"/></svg>'
   };
   sceneThemes.knight = {
-    svg: $('knightClock'), fill: $('knightFillRect'), time: $('knightTime'), label: $('knightLabel'), progress: $('knightProgress'),
+    svg: $('knightClock'), fill: $('knightFillRect'), time: $('knightTime'), progress: $('knightProgress'),
     baseY: 720, span: 650,
     activeLabel: 'RYTÍŘ SE VYBARVUJE!', doneLabel: 'HURÁ, RYTÍŘ JE HOTOVÝ!',
     progressText: pct => `${pct} % vybarveno`,
@@ -1038,7 +1049,6 @@
       scene.fill.setAttribute('y',String(scene.baseY-scene.span*progressed));
       scene.fill.setAttribute('height',String(scene.span*progressed));
       scene.progress.textContent=scene.progressText(pct);
-      scene.label.textContent=remainingMs<=0?scene.doneLabel:scene.activeLabel;
     });
     const displayed=Math.ceil(remainingMs/1000);
     if(displayed!==lastShown){
@@ -1058,6 +1068,7 @@
       status.textContent=activeScene?(running?activeScene.runningStatus:activeScene.idleStatus):(running?'Pozoruj, jak duha pomalu mizí. 🌈':'Jak duha mizí, čas utíká. 🦄');
     }
     btnIcon.textContent=running?'❚❚':'▶';btnText.textContent=running?'Pozastavit':remainingMs<=0?'Spustit znovu':remainingMs<selected*60000?'Pokračovat':'Spustit čas';
+    btn.setAttribute('aria-label',btnText.textContent);btn.title=btnText.textContent;
   }
   function setTheme(next){
     theme=['rainbow',...Object.keys(sceneThemes)].includes(next)?next:'rainbow';
@@ -1069,7 +1080,27 @@
     $('triggerLabel').textContent=`Motivy · ${chosen.label}`;
     paint();
   }
-  function halt(){running=false;cancelAnimationFrame(frame);clearTimeout(alarmTimer);alarmTimer=0;}
+  // Během odpočtu udržuje kompatibilní telefon vzhůru. Nelze vynutit při nízké baterii nebo mimo popředí.
+  let screenWakeLock=null, pendingWakeLock=null;
+  async function keepScreenAwake(){
+    if(!running || document.hidden || !navigator.wakeLock || screenWakeLock || pendingWakeLock)return;
+    let request;
+    try{
+      request=navigator.wakeLock.request('screen');
+      pendingWakeLock=request;
+      const lock=await request;
+      if(pendingWakeLock===request)pendingWakeLock=null;
+      if(!running || document.hidden){await lock.release();return;}
+      screenWakeLock=lock;
+      lock.addEventListener('release',()=>{if(screenWakeLock===lock)screenWakeLock=null;});
+    }catch(_){if(pendingWakeLock===request)pendingWakeLock=null;}
+  }
+  function allowScreenToSleep(){
+    const lock=screenWakeLock;
+    screenWakeLock=null;
+    if(lock)lock.release().catch(()=>{});
+  }
+  function halt(){running=false;cancelAnimationFrame(frame);clearTimeout(alarmTimer);alarmTimer=0;allowScreenToSleep();}
   function hideConfetti(){clearTimeout(finishTimeout);finishedOverlay.classList.remove('show');finishedOverlay.innerHTML='';}
   function syncPresets(){document.querySelectorAll('[data-minutes]').forEach(button=>button.classList.toggle('active',Number(button.dataset.minutes)===selected));}
   function setMinutes(value){
@@ -1146,7 +1177,7 @@
   function toggle(){
     if(running){halt();paint();return;}
     hideConfetti();if(remainingMs<=0)remainingMs=selected*60000;
-    unlockAudio();running=true;finishAt=performance.now()+remainingMs;scheduleAlarm();paint();frame=requestAnimationFrame(tick);
+    unlockAudio();running=true;finishAt=performance.now()+remainingMs;keepScreenAwake();scheduleAlarm();paint();frame=requestAnimationFrame(tick);
   }
   // Posuvníky mají vlastní dotykové/pointer ovládání, aby reagovaly i na telefonu.
   // Nativní input/change události zůstávají pro klávesnici a přístupnost.
@@ -1290,7 +1321,9 @@
   $('fullBtn').addEventListener('click',async()=>{
     try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(e){}
   });
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&running){remainingMs=Math.max(0,finishAt-performance.now());if(!remainingMs)complete();else paint();}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){allowScreenToSleep();return;}if(running){remainingMs=Math.max(0,finishAt-performance.now());if(!remainingMs)complete();else{paint();keepScreenAwake();}}});
+  window.addEventListener('pagehide',allowScreenToSleep);
+  window.addEventListener('pageshow',()=>{if(running&&!document.hidden)keepScreenAwake();});
   calibrateSceneBounds();
   setMinutes(20);
 })();
