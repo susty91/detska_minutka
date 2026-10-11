@@ -11,8 +11,8 @@ Ilustrace jsou vlastní SVG kresby přímo v aplikaci, bez externích obrázků.
 ## Použití
 
 - Otevřete [index.html](./index.html) v prohlížeči.
-- Rozsah je **1–60 minut**. Rychlé předvolby: 1, 2, 5, 10, 15, 20, 25, 30, 45, 60.
-- **Vybrat motiv** otevře obrázkovou nabídku.
+- Rozsah je **1–60 minut**. Čas nastavíš posuvníkem nebo tlačítkem **Předvolené časy** pod ovládáním časovače (1, 2, 5, 10, 15, 20, 25, 30, 45, 60 minut).
+- Tlačítko **Motivy** pod ovládáním časovače otevře obrázkovou nabídku.
 - **Spustit čas / Pozastavit / Pokračovat / Znovu** ovládá odpočet.
 - Konec oznámí animace a příjemná zvonkohra (lze vypnout nebo vyzkoušet).
 - Duhový motiv navíc umožňuje změnit měřítko ciferníku.
