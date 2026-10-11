@@ -11,9 +11,9 @@ Ilustrace jsou vlastní SVG kresby přímo v aplikaci, bez externích obrázků.
 ## Použití
 
 - Otevřete [index.html](./index.html) v prohlížeči.
-- Rozsah je **1–60 minut**. Posuvník, ▶ / ⏸, ↻ a ☰ jsou v jedné horní liště. V nabídce ☰ najdeš i **Předvolené časy** (1, 2, 5, 10, 15, 20, 25, 30, 45, 60 minut).
+- Rozsah je **1–60 minut**. Posuvník, ▶ / ⏸, ↻ a ☰ jsou v jedné **spodní liště**, pohodlně ovladatelné palcem. V nabídce ☰ najdeš i **Předvolené časy** (1, 2, 5, 10, 15, 20, 25, 30, 45, 60 minut).
 - Výběr **Motivy** najdeš v burger menu ☰. Stejné menu obsahuje přepínání zvuku, vyzkoušení zvonečku a přepnutí na celou obrazovku.
-- Ikony **▶ / ⏸ / ↻** pod posuvníkem spouštějí, pozastavují a restartují odpočítávání.
+- Ikony **▶ / ⏸ / ↻** ve spodní liště spouštějí, pozastavují a restartují odpočítávání. Burger menu se otevírá vzhůru.
 - Konec oznámí animace a příjemná zvonkohra (lze vypnout nebo vyzkoušet).
 - Duhový motiv navíc umožňuje změnit měřítko ciferníku.
 - Při běžícím odpočtu se na podporovaných zařízeních automaticky žádá o **udržení rozsvícené obrazovky (Screen Wake Lock API)**. Při pauze nebo dokončení se žádost uvolní. Vyžaduje HTTPS, aktivní kartu a podporovaný prohlížeč; může být omezeno úsporným režimem telefonu.
@@ -23,4 +23,10 @@ Funguje na počítači, tabletu i telefonu a nepotřebuje přihlášení, datab�
 **Upozornění ke zvuku:** Mobilní prohlížeče někdy omezují zvuk na pozadí. Pokud telefon aplikaci uspí, závěrečné upozornění se může přehrát až po návratu do otevřené stránky.
 
 
-Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.\n\nFavicon je v souboru `favicon.svg`. 
+Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.
+
+Favicon je v souboru `favicon.svg`. 
+
+## Ikona na ploše telefonu
+
+Na iPhonu slouží `apple-touch-icon.png` (180 × 180 px), na Androidu `manifest.webmanifest` spolu s `icon-192.png` a `icon-512.png`. Favicon pro záložku prohlížeče je `favicon.svg`. Pokud už máte na ploše starého zástupce s písmenem D, odstraňte jej a po nasazení aktuální verze znovu použijte **Přidat na plochu**.
