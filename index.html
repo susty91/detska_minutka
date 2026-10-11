@@ -320,6 +320,51 @@
     @media(max-width:355px){
       .shell > .compact-header{padding-left:4px;padding-right:4px}
     }
+
+    /* Duhový ciferník: vodorovný posuvník vždy NAD obrázkem, rozhraní pro telefon. */
+    main > .scale-panel{
+      position:relative;inset:auto;top:auto;right:auto;left:auto;bottom:auto;
+      transform:none;z-index:2;flex:0 0 auto;
+      display:flex;flex-direction:row;align-items:center;justify-content:center;
+      align-self:center;width:min(730px,calc(100% - 14px));max-width:none;
+      padding:11px 15px;margin:7px auto 0;gap:12px;
+      border-radius:18px;
+    }
+    main > .scale-panel .scale-title{flex:0 0 auto;font-size:12px;white-space:nowrap}
+    main > .scale-panel .scale-value{flex:0 0 auto;min-width:65px;padding:7px 8px;font-size:15px}
+    main > .scale-panel .scale-subtitle{flex:0 0 auto;font-size:11px;max-width:none;white-space:nowrap}
+    .scale-range{
+      -webkit-appearance:none;appearance:none;display:block;flex:1 1 auto;
+      width:100%;min-width:65px;height:12px;cursor:pointer;
+      border:none;border-radius:999px;touch-action:none;
+      background:linear-gradient(90deg,#ff98ad 0%,#ffc97c 25%,#a0dc98 50%,#7fcdf0 75%,#ae9af7 100%);
+      box-shadow:inset 0 1px 3px #57506b1a;
+    }
+    .scale-range::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;width:29px;height:29px;
+      background:#fff;border:5px solid #8a70e1;box-shadow:0 2px 6px #61518d45;border-radius:50%;
+    }
+    .scale-range::-moz-range-thumb{
+      width:19px;height:19px;background:#fff;border:5px solid #8a70e1;box-shadow:0 2px 6px #61518d45;border-radius:50%;
+    }
+    body:not(.is-rainbow) main > .scale-panel{display:none}
+    body.is-rainbow main .clock-stage{padding-right:0}
+    body.is-rainbow main .clock-stage .clock-frame{width:min(calc(100vw - 14px),calc(100dvh - 145px));aspect-ratio:1}
+    @media(max-width:780px){
+      main > .scale-panel{width:calc(100% - 12px);gap:8px;padding:10px 10px;margin:6px auto 0}
+      main > .scale-panel .scale-title{font-size:11px}
+      main > .scale-panel .scale-value{font-size:13px;min-width:57px;padding:6px 6px}
+      main > .scale-panel .scale-subtitle{font-size:10px}
+      body.is-rainbow main .clock-stage{padding-right:0}
+      body.is-rainbow main .clock-stage .clock-frame{width:min(calc(100vw - 14px),calc(100dvh - 130px))}
+    }
+    @media(max-width:450px){
+      main > .scale-panel{width:calc(100% - 8px);gap:8px;padding:8px 9px;margin:5px auto 0}
+      main > .scale-panel .scale-title{font-size:11px}
+      main > .scale-panel .scale-subtitle{display:none}
+      .scale-range{height:10px}
+      body.is-rainbow main .clock-stage .clock-frame{width:min(calc(100vw - 8px),calc(100dvh - 123px))}
+    }
   </style>
 </head>
 <body>
@@ -351,6 +396,12 @@
       </section>
     </div>
     <main>
+      <aside class="scale-panel" aria-label="Nastavení měřítka ciferníku">
+        <label class="scale-title" for="dialScale">Kruh má</label>
+        <input id="dialScale" class="scale-range" type="range" min="20" max="60" value="60" step="1" aria-label="Počet minut na celý ciferník" aria-describedby="scaleHelp" />
+        <output class="scale-value" for="dialScale" id="scaleValue">60 min</output>
+        <div class="scale-subtitle" id="scaleHelp">20 min = 33 % kruhu</div>
+      </aside>
       <div class="clock-stage">
       <div class="clock-frame">
         <svg class="clock" id="clock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Duhový ciferník. V barevných pruzích je znázorněný zbývající čas.">
@@ -920,14 +971,6 @@
           <text x="400" y="793" class="knight-progress" id="knightProgress">0 % vybarveno</text>
         </svg>
       </div>
-      <aside class="scale-panel" aria-label="Nastavení měřítka ciferníku">
-        <label class="scale-title" for="dialScale">Kruh má</label>
-        <output class="scale-value" for="dialScale" id="scaleValue">60 min</output>
-        <span class="scale-edge" aria-hidden="true">víc času</span>
-        <div class="vertical-range-box"><div id="dialScale" class="scale-track" role="slider" tabindex="0" aria-valuemin="20" aria-valuemax="60" aria-valuenow="60" aria-orientation="vertical" aria-label="Počet minut na celý ciferník" aria-describedby="scaleHelp" style="--pos:50%"><span class="scale-thumb"></span></div></div>
-        <span class="scale-edge" aria-hidden="true">míň času</span>
-        <div class="scale-subtitle" id="scaleHelp">20 min = 33 % kruhu</div>
-      </aside>
       </div>
 
       <span class="sr-only" id="statusText" role="status" aria-live="polite">Jak duha mizí, čas utíká. 🦄</span>
@@ -1112,10 +1155,9 @@
     }
   }
   function updateScaleControls(){
-    scaleSlider.setAttribute('aria-valuemin',String(selected));
-    scaleSlider.setAttribute('aria-valuenow',String(dialMax));
-    const fraction=(MAX_MIN===selected?0:(MAX_MIN-dialMax)/(MAX_MIN-selected));
-    scaleSlider.style.setProperty('--pos',`${Math.max(0,Math.min(100,fraction*100))}%`);
+    scaleSlider.min=String(selected);
+    scaleSlider.max=String(MAX_MIN);
+    scaleSlider.value=String(dialMax);
     scaleValue.textContent=`${dialMax} min`;
     const percent=Math.round(100*selected/dialMax);
     scaleHelp.textContent=`${readableMinutes(selected)} = ${percent} % kruhu`;
@@ -1327,27 +1369,29 @@
   slider.addEventListener('pointercancel',stopHorizontal);
   // iOS používá i touch události: těmito záložními handlery lze slider táhnout prstem.
   slider.addEventListener('touchmove',e=>{if(e.touches.length===1){setFromHorizontalPoint(e.touches[0].clientX);e.preventDefault();}},{passive:false});
-  function setFromVerticalPoint(clientY){
+  scaleSlider.addEventListener('input',()=>setDialScale(scaleSlider.value));
+  scaleSlider.addEventListener('change',()=>setDialScale(scaleSlider.value));
+  function setScaleFromHorizontalPoint(clientX){
     const r=scaleSlider.getBoundingClientRect();
-    if(!r.height)return;
-    const position=Math.max(0,Math.min(1,(clientY-r.top)/r.height));
-    const value=Math.round(MAX_MIN-position*(MAX_MIN-selected));
-    if(value!==dialMax)setDialScale(value);
+    if(!r.width)return;
+    const fraction=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+    const next=Math.round(selected+fraction*(MAX_MIN-selected));
+    if(next!==dialMax)setDialScale(next);
   }
-  let verticalDrag=false;
-  scaleSlider.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;verticalDrag=true;try{scaleSlider.setPointerCapture(e.pointerId);}catch(_){}setFromVerticalPoint(e.clientY);e.preventDefault();});
-  scaleSlider.addEventListener('pointermove',e=>{if(verticalDrag)setFromVerticalPoint(e.clientY);});
-  scaleSlider.addEventListener('pointerup',()=>{verticalDrag=false;});
-  scaleSlider.addEventListener('pointercancel',()=>{verticalDrag=false;});
-  scaleSlider.addEventListener('touchstart',e=>{if(e.touches.length===1){setFromVerticalPoint(e.touches[0].clientY);e.preventDefault();}},{passive:false});
-  scaleSlider.addEventListener('touchmove',e=>{if(e.touches.length===1){setFromVerticalPoint(e.touches[0].clientY);e.preventDefault();}},{passive:false});
-  scaleSlider.addEventListener('keydown',e=>{
-    const k=e.key;
-    if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End'].includes(k))return;
-    e.preventDefault();
-    const delta=k==='PageUp'?10:k==='PageDown'?-10:k==='ArrowUp'||k==='ArrowRight'?1:-1;
-    setDialScale(k==='Home'?selected:k==='End'?MAX_MIN:dialMax+delta);
+  let scaleDragging=false;
+  scaleSlider.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    scaleDragging=true;
+    try{scaleSlider.setPointerCapture(e.pointerId);}catch(_){}
+    setScaleFromHorizontalPoint(e.clientX);
   });
+  scaleSlider.addEventListener('pointermove',e=>{if(scaleDragging)setScaleFromHorizontalPoint(e.clientX);});
+  const stopScaleDragging=()=>{scaleDragging=false;};
+  scaleSlider.addEventListener('pointerup',stopScaleDragging);
+  scaleSlider.addEventListener('pointercancel',stopScaleDragging);
+  scaleSlider.addEventListener('touchmove',e=>{
+    if(e.touches.length===1){setScaleFromHorizontalPoint(e.touches[0].clientX);e.preventDefault();}
+  },{passive:false});
 
   const allThemes = [
     {id:'dino', label:'Dinosaurus', emoji:'🦕'},
