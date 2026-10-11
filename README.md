@@ -28,6 +28,15 @@ Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.
 
 Favicon je v souboru `favicon.svg`. 
 
+
+## Výkon a úsporný režim
+
+- Animace mění pouze **právě zobrazený motiv**; skryté SVG obrázky se během odpočtu nepřekreslují. Duhový ciferník se aktualizuje pouze při zvoleném motivu Duha.
+- Běžný režim překresluje maximálně **5× za sekundu** (interval 200 ms). Přesnost odpočítávání se počítá podle skutečného času, takže nesouvisí s frekvencí vykreslování. Zvuk na konci zůstává řízen samostatným časovačem.
+- V burger menu je **Úsporný režim** (ukládá se lokálně do prohlížeče). Ten sníží překreslování na **1× za sekundu**, vypne některé náročné grafické efekty a **nevyžaduje udržování displeje rozsvíceného**.
+- **Pozor:** pokud telefon v úsporném režimu zamkne displej nebo uspí prohlížeč, nemusí na iPhonu zaznít konečný zvoneček včas. Pro spolehlivější vizuální odpočítávání ponechte běžný režim.
+- Při pauze se čas aktualizuje podle okamžiku stisku, nikoli podle posledního vykresleného snímku.
+
 ## Ikona na ploše telefonu
 
 Na iPhonu slouží `apple-touch-icon.png` (180 × 180 px), na Androidu `manifest.webmanifest` spolu s `icon-192.png` a `icon-512.png`. Favicon pro záložku prohlížeče je `favicon.svg`. Pokud už máte na ploše starého zástupce s písmenem D, odstraňte jej a po nasazení aktuální verze znovu použijte **Přidat na plochu**.
