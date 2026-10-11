@@ -171,6 +171,19 @@
     body.theme-modal-open{overflow:hidden}
     @media(max-width:780px){body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(87vw,65dvh)}}
     @media(max-width:450px){body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(94vw,56dvh)}.theme-picker{margin-top:7px}.theme-trigger{padding:8px 13px;min-height:42px;font-size:13px}.theme-dialog{max-height:92dvh;padding:16px;border-radius:20px}.theme-dialog h2{font-size:20px}.theme-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.theme-tile{min-height:92px;border-radius:14px;padding:10px 4px}.theme-tile-emoji{font-size:26px}.theme-tile-name{font-size:11px}.tile-heart{top:3px;right:3px;width:27px;height:27px;font-size:16px}}
+
+    .quick-tools{display:flex;gap:9px;justify-content:center;align-items:stretch;width:min(510px,100%);padding:2px 9px 0}
+    .quick-tools .theme-picker,.quick-tools .preset-trigger{flex:1;min-width:0}
+    .quick-tools .theme-picker{display:flex;margin:0}
+    .quick-tools .theme-trigger{width:100%;min-width:0;min-height:44px;padding:9px 10px;font-size:13px;gap:6px;white-space:nowrap}
+    .quick-tools .trigger-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .quick-tools .trigger-emoji,.quick-tools .trigger-caret{flex-shrink:0}
+    .preset-dialog{width:min(540px,100%)}
+    .preset-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;padding:10px 0 0}
+    .preset-grid .preset{border-radius:14px;min-height:52px;padding:7px 3px;font-size:14px}
+    @media(max-width:450px){.quick-tools{gap:7px}.quick-tools .theme-trigger{font-size:12px;padding:8px 6px}.preset-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.preset-grid .preset{min-height:49px}}
+    @media(max-width:350px){.quick-tools .trigger-caret{display:none}}
+    @media(min-width:781px) and (max-height:980px){.shell main .clock-frame{width:min(69vmin,690px)}}
   </style>
 </head>
 <body>
@@ -185,14 +198,13 @@
       </div>
       <div class="top-extras"><button class="icon-button" id="soundBtn" aria-label="Vypnout zvuk" title="Zapnout nebo vypnout závěrečný zvuk">🔊</button><button class="icon-button" id="previewSound" aria-label="Vyzkoušet zvonění" title="Poslechnout závěrečný zvoneček">🔔</button><button class="icon-button" id="fullBtn" aria-label="Celá obrazovka" title="Celá obrazovka">⛶</button></div>
     </header>
-    <nav class="presets" aria-label="Rychlé nastavení času">
+    <div class="theme-modal" id="presetModal" hidden>
+      <section class="theme-dialog preset-dialog" role="dialog" aria-modal="true" aria-labelledby="presetTitle">
+        <div class="theme-dialog-header"><h2 id="presetTitle">Předvolené časy ⏱️</h2><button class="modal-close" id="closePresets" type="button" aria-label="Zavřít předvolby">×</button></div>
+    <nav class="presets preset-grid" aria-label="Rychlé nastavení času">
       <button class="preset" data-minutes="1">1 min</button><button class="preset" data-minutes="2">2 min</button><button class="preset" data-minutes="5">5 min</button><button class="preset" data-minutes="10">10 min</button><button class="preset" data-minutes="15">15 min</button><button class="preset active" data-minutes="20">20 min</button><button class="preset" data-minutes="25">25 min</button><button class="preset" data-minutes="30">30 min</button><button class="preset" data-minutes="45">45 min</button><button class="preset" data-minutes="60">60 min</button>
     </nav>
-    <div class="theme-picker">
-      <button class="theme-trigger" type="button" id="themeTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeModal">
-        <span class="trigger-emoji" id="triggerEmoji" aria-hidden="true">🌈</span>
-        <span id="triggerLabel">Vybrat motiv · Duha</span><span class="trigger-caret" aria-hidden="true">▾</span>
-      </button>
+      </section>
     </div>
     <div class="theme-modal" id="themeModal" hidden>
       <section class="theme-dialog" role="dialog" aria-modal="true" aria-labelledby="themeDialogTitle" aria-describedby="themeDialogDesc">
@@ -798,6 +810,15 @@
       </aside>
       </div>
       <div class="actions"><button class="action primary" id="startPause"><span id="startIcon">▶</span><span id="startText">Spustit čas</span></button><button class="action secondary" id="reset">↻ <span>Znovu</span></button></div>
+      <div class="quick-tools">
+        <button type="button" class="theme-trigger preset-trigger" id="presetTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="presetModal"><span class="trigger-emoji">⏱️</span><span class="trigger-label">Předvolené časy</span><span class="trigger-caret">▾</span></button>
+        <div class="theme-picker">
+      <button class="theme-trigger" type="button" id="themeTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeModal">
+        <span class="trigger-emoji" id="triggerEmoji" aria-hidden="true">🌈</span>
+        <span id="triggerLabel" class="trigger-label">Motivy · Duha</span><span class="trigger-caret" aria-hidden="true">▾</span>
+      </button>
+    </div>
+      </div>
       <p class="footnote" id="statusText" role="status">Jak duha mizí, čas utíká. 🦄</p>
     </main>
   </div>
@@ -1045,7 +1066,7 @@
     Object.entries(sceneThemes).forEach(([name,scene])=>scene.svg.toggleAttribute('hidden',theme!==name));
     const chosen = allThemes.find(item=>item.id===theme) || allThemes[0];
     $('triggerEmoji').textContent=chosen.emoji;
-    $('triggerLabel').textContent=`Vybrat motiv · ${chosen.label}`;
+    $('triggerLabel').textContent=`Motivy · ${chosen.label}`;
     paint();
   }
   function halt(){running=false;cancelAnimationFrame(frame);clearTimeout(alarmTimer);alarmTimer=0;}
@@ -1184,6 +1205,8 @@
   ];
   const themeTrigger = $('themeTrigger');
   const themeModal = $('themeModal');
+  const presetModal = $('presetModal');
+  const presetTrigger = $('presetTrigger');
   const themeGrid = $('themeGrid');
   let favoritesOnly = false;
   let favorites = new Set();
@@ -1220,6 +1243,7 @@
     }
   }
   function openThemeDialog(){
+    if(!presetModal.hidden)closePresetDialog();
     favoritesOnly=false;renderThemeOptions();themeModal.hidden=false;document.body.classList.add('theme-modal-open');
     themeTrigger.setAttribute('aria-expanded','true');$('closeThemes').focus();
   }
@@ -1228,16 +1252,21 @@
     themeModal.hidden=true;document.body.classList.remove('theme-modal-open');
     themeTrigger.setAttribute('aria-expanded','false');themeTrigger.focus();
   }
+  function openPresetDialog(){presetModal.hidden=false;document.body.classList.add('theme-modal-open');presetTrigger.setAttribute('aria-expanded','true');$('closePresets').focus();}
+  function closePresetDialog(){if(presetModal.hidden)return;presetModal.hidden=true;document.body.classList.remove('theme-modal-open');presetTrigger.setAttribute('aria-expanded','false');presetTrigger.focus();}
+  presetTrigger.addEventListener('click',openPresetDialog);
+  $('closePresets').addEventListener('click',closePresetDialog);
+  presetModal.addEventListener('click',e=>{if(e.target===presetModal)closePresetDialog();});
   themeTrigger.addEventListener('click',openThemeDialog);
   $('closeThemes').addEventListener('click',closeThemeDialog);
   themeModal.addEventListener('click',e=>{if(e.target===themeModal)closeThemeDialog();});
   $('showAllThemes').addEventListener('click',()=>{favoritesOnly=false;renderThemeOptions();});
   $('showFavoriteThemes').addEventListener('click',()=>{favoritesOnly=true;renderThemeOptions();});
   document.addEventListener('keydown',e=>{
-    if(themeModal.hidden)return;
-    if(e.key==='Escape'){e.preventDefault();closeThemeDialog();}
+    if(themeModal.hidden && presetModal.hidden)return;
+    if(e.key==='Escape'){e.preventDefault();if(!presetModal.hidden)closePresetDialog();else closeThemeDialog();}
     if(e.key==='Tab'){
-      const els=[...themeModal.querySelectorAll('button:not(:disabled)')].filter(el=>el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+      const els=[...(!themeModal.hidden?themeModal:presetModal).querySelectorAll('button:not(:disabled)')].filter(el=>el.offsetWidth||el.offsetHeight||el.getClientRects().length);
       if(!els.length)return;
       if(e.shiftKey && document.activeElement===els[0]){e.preventDefault();els.at(-1).focus();}
       else if(!e.shiftKey && document.activeElement===els.at(-1)){e.preventDefault();els[0].focus();}
@@ -1247,14 +1276,14 @@
   // Mezerník ovládá časovač i po kliknutí na ostatní ovládací tlačítka.
   document.addEventListener('keydown',e=>{
     if(e.code!=='Space'&&e.key!==' ')return;
-    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey || !themeModal.hidden)return;
+    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey || !themeModal.hidden || !presetModal.hidden)return;
     const active=document.activeElement;
     if(active&&(active.isContentEditable||active.matches('textarea, select, input:not([type="range"])')))return;
     e.preventDefault();
     if(!e.repeat)toggle();
   },true);
   $('previewSound').addEventListener('click',()=>ringBell(true));
-  document.querySelectorAll('[data-minutes]').forEach(button=>button.addEventListener('click',()=>setMinutes(button.dataset.minutes)));
+  document.querySelectorAll('[data-minutes]').forEach(button=>button.addEventListener('click',()=>{setMinutes(button.dataset.minutes);closePresetDialog();}));
   btn.addEventListener('click',toggle);
   $('reset').addEventListener('click',()=>setMinutes(selected));
   $('soundBtn').addEventListener('click',()=>{muted=!muted;if(!muted)unlockAudio();$('soundBtn').textContent=muted?'🔇':'🔊';$('soundBtn').setAttribute('aria-label',muted?'Zapnout zvuk':'Vypnout zvuk');});
