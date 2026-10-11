@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#fff8f4" />
-  <title>Duhové hodiny – kouzelný časovač pro děti</title>
+  <title>Dětská minutka – hravý časovač pro děti</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <meta name="description" content="Barevná minutka pro děti. Vyber si pohádkový motiv, nastav 1–60 minut a sleduj, jak se obrázek postupně vybarvuje." />
   <style>
     :root{color-scheme:light;--ink:#34445f;--muted:#8491a8;--lavender:#816bd6;--soft:#faf7ff;--edge:#e9e8f3;--shadow:0 18px 50px rgba(73,72,128,.11)}
@@ -172,17 +173,25 @@
     @media(max-width:780px){body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(87vw,65dvh)}}
     @media(max-width:450px){body.is-car .clock-frame,body.is-tractor .clock-frame,body.is-firetruck .clock-frame,body.is-ocean .clock-frame,body.is-princess .clock-frame,body.is-knight .clock-frame{width:min(94vw,56dvh)}.theme-picker{margin-top:7px}.theme-trigger{padding:8px 13px;min-height:42px;font-size:13px}.theme-dialog{max-height:92dvh;padding:16px;border-radius:20px}.theme-dialog h2{font-size:20px}.theme-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.theme-tile{min-height:92px;border-radius:14px;padding:10px 4px}.theme-tile-emoji{font-size:26px}.theme-tile-name{font-size:11px}.tile-heart{top:3px;right:3px;width:27px;height:27px;font-size:16px}}
 
-    .quick-tools{display:flex;gap:9px;justify-content:center;align-items:stretch;width:min(510px,100%);padding:2px 9px 0}
-    .quick-tools .theme-picker,.quick-tools .preset-trigger{flex:1;min-width:0}
+    /* Malá mobilní plocha: dvě nabídky až pod Spustit / Znovu. */
+    .quick-tools{display:flex;align-items:stretch;justify-content:center;gap:10px;width:min(510px,100%);padding:2px 10px 0;min-width:0}
+    .quick-tools .preset-trigger,.quick-tools .theme-picker{flex:1;min-width:0}
     .quick-tools .theme-picker{display:flex;margin:0}
-    .quick-tools .theme-trigger{width:100%;min-width:0;min-height:44px;padding:9px 10px;font-size:13px;gap:6px;white-space:nowrap}
-    .quick-tools .trigger-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .quick-tools .trigger-emoji,.quick-tools .trigger-caret{flex-shrink:0}
-    .preset-dialog{width:min(540px,100%)}
-    .preset-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;padding:10px 0 0}
-    .preset-grid .preset{border-radius:14px;min-height:52px;padding:7px 3px;font-size:14px}
-    @media(max-width:450px){.quick-tools{gap:7px}.quick-tools .theme-trigger{font-size:12px;padding:8px 6px}.preset-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.preset-grid .preset{min-height:49px}}
-    @media(max-width:350px){.quick-tools .trigger-caret{display:none}}
+    .quick-tools .theme-trigger{width:100%;min-width:0;padding:9px 11px;gap:7px;font-size:13px;min-height:44px;white-space:nowrap}
+    .quick-tools .trigger-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+    .quick-tools .trigger-emoji{flex:0 0 auto;font-size:19px}
+    .quick-tools .trigger-caret{flex:0 0 auto;margin-left:auto}
+    .preset-dialog{width:min(535px,100%)}
+    .preset-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;padding:5px 1px 4px;margin:0}
+    .preset-grid .preset{display:flex;align-items:center;justify-content:center;border-radius:13px;font-size:14px;min-height:54px;padding:8px 4px;white-space:nowrap}
+    @media(max-width:450px){
+      .quick-tools{gap:7px;padding:1px 8px 0}
+      .quick-tools .theme-trigger{padding:8px 8px;font-size:12px;gap:5px;min-height:42px}
+      .quick-tools .trigger-emoji{font-size:18px}
+      .preset-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .preset-grid .preset{min-height:50px}
+    }
+    @media(max-width:350px){.quick-tools .trigger-caret{display:none}.quick-tools .theme-trigger{font-size:11px}}
     @media(min-width:781px) and (max-height:980px){.shell main .clock-frame{width:min(69vmin,690px)}}
 
     /* Kompaktní ovládání: play/pause a znovu přímo pod nastavením času. */
@@ -202,27 +211,94 @@
       header .actions{order:4;margin:0}
       header .action{height:41px;min-width:57px;width:57px;border-radius:13px}
     }
+
+    /* Jedna kompaktní ovládací lišta, bez názvu ani dalších řádků. */
+    .compact-header{display:block;width:100%;padding:10px 8px 6px}
+    .control-bar{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;max-width:1040px;margin:auto;min-width:0}
+    .compact-header .settings{order:0;display:flex;flex:1 1 0;align-items:center;gap:9px;min-width:0;margin:0;padding:7px 10px 7px 14px;border-radius:19px;box-shadow:0 5px 18px #9987aa10}
+    .compact-header #duration{flex:1 1 auto;min-width:50px;height:10px}
+    .compact-header #duration::-webkit-slider-thumb{width:25px;height:25px;border-width:4px}
+    .compact-header #duration::-moz-range-thumb{width:17px;height:17px;border-width:4px}
+    .compact-header .selected-time{flex:0 0 auto;min-width:71px;padding:8px 7px;font-size:16px;border-radius:13px}
+    .compact-header .actions{order:0;grid-column:auto;grid-row:auto;display:flex;flex:0 0 auto;width:auto;margin:0;padding:0;gap:7px}
+    .compact-header .action{width:45px;min-width:45px;height:45px;border-radius:14px;padding:0;box-shadow:0 4px 12px #8579a91d}
+    .compact-header #startIcon{font-size:19px}
+    .compact-header #reset{font-size:27px}
+    .menu-wrap{position:relative;flex:0 0 auto}
+    .burger-button{width:45px;height:45px;display:grid;place-items:center;padding:0;border-radius:14px}
+    .burger-button[aria-expanded="true"]{background:#f0eaff;color:#6c55b1;border-color:#cbb8f5}
+    .main-menu[hidden]{display:none}
+    .main-menu{position:absolute;right:0;top:calc(100% + 9px);z-index:8;display:flex;flex-direction:column;gap:3px;width:min(300px,calc(100vw - 20px));border-radius:21px;padding:8px;background:white;border:1px solid #e9e4f0;box-shadow:0 20px 50px #49415831}
+    .main-menu button{display:flex;align-items:center;gap:10px;text-align:left;width:100%;padding:12px 13px;font-size:14px;font-weight:800;color:#5e597b;background:transparent;border:0;border-radius:12px;white-space:nowrap}
+    .main-menu button:hover:not(:disabled),.main-menu button:focus-visible{background:#f6f2ff}
+    .main-menu button:disabled{opacity:.55;cursor:default}
+    .main-menu button span:first-child{flex:0 0 22px;font-size:18px;text-align:center}
+    .main-menu button span:last-child:not(:first-child){margin-left:auto}
+    .main-menu #previewSound{font-size:14px}
+    .main-menu #soundText{margin-left:0}
+    .menu-divider{height:1px;background:#ece9f3;margin:5px 7px}
+    .menu-soon{font-weight:750;font-size:11px;color:#a398ad;margin-left:auto}
+    /* Široký interval v řádku se musí vejít i na 320px mobil. */
+    @media(max-width:780px){
+      .compact-header{padding:8px 6px 4px}
+      .control-bar{gap:5px;flex-wrap:nowrap}
+      .compact-header .settings{order:0;width:auto;min-width:0;padding:6px 6px 6px 8px;gap:5px;border-radius:13px}
+      .compact-header .selected-time{font-size:13px;min-width:55px;padding:7px 4px;border-radius:10px}
+      .compact-header .actions{order:0;width:auto;min-width:0;margin:0;gap:5px}
+      .compact-header .action,.burger-button{width:39px;min-width:39px;height:39px;border-radius:11px}
+      .compact-header #startIcon{font-size:17px}
+      .compact-header #reset{font-size:25px}
+      .burger-button svg{width:22px;height:22px}
+    }
+    @media(max-width:355px){
+      .compact-header{padding-left:4px;padding-right:4px}
+      .control-bar{gap:4px}
+      .compact-header .action,.burger-button{width:35px;min-width:35px;height:38px}
+      .compact-header .actions{gap:4px}
+      .compact-header .selected-time{font-size:12px;min-width:49px;padding:7px 3px}
+      .compact-header .settings{gap:4px;padding:6px 4px}
+    }
+    main{justify-content:center;gap:5px}
+    @media(max-width:780px){main{justify-content:space-evenly}}
   </style>
 </head>
 <body>
   <div class="overlay" id="confetti" aria-hidden="true"></div>
   <div class="shell">
-    <header>
-      <div class="logo"><div class="logo-mark" aria-hidden="true">🌈</div><div>Duhové hodiny<div class="tagline">Malé kouzlo pro velké čekání ✨</div></div></div>
-      <div class="settings">
-        <label class="setting-title" for="duration">Nastav čas</label>
-        <input id="duration" type="range" min="1" max="60" value="20" step="1" aria-label="Délka časovače v minutách" />
-        <output class="selected-time" id="selectedTime" for="duration">20 min</output>
+    <header class="compact-header">
+      <div class="control-bar">
+        <div class="settings" role="group" aria-label="Nastavení času">
+          <label class="sr-only" for="duration">Nastav čas v minutách</label>
+          <input id="duration" type="range" min="1" max="60" value="20" step="1" aria-label="Délka časovače v minutách" />
+          <output class="selected-time" id="selectedTime" for="duration">20 min</output>
+        </div>
+        <div class="actions" aria-label="Ovládání časovače">
+          <button class="action primary" id="startPause" type="button" aria-label="Spustit čas" title="Spustit čas"><span id="startIcon" aria-hidden="true">▶</span><span id="startText" class="sr-only">Spustit čas</span></button>
+          <button class="action secondary" id="reset" type="button" aria-label="Znovu" title="Znovu"><span aria-hidden="true">↻</span></button>
+        </div>
+        <div class="menu-wrap">
+          <button class="icon-button burger-button" id="menuTrigger" type="button" aria-label="Otevřít nabídku" aria-expanded="false" aria-controls="mainMenu" aria-haspopup="true" title="Nabídka">
+            <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <nav id="mainMenu" class="main-menu" aria-label="Nabídka minutky" hidden>
+            <button id="presetTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="presetModal"><span aria-hidden="true">⏱️</span> Předvolené časy <span aria-hidden="true">›</span></button>
+            <button id="themeTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeModal"><span id="triggerEmoji" aria-hidden="true">🦕</span> <span id="triggerLabel">Motivy · Dinosaurus</span> <span aria-hidden="true">›</span></button>
+            <div class="menu-divider"></div>
+            <button id="soundBtn" type="button" aria-label="Vypnout zvuk"><span id="soundIcon" aria-hidden="true">🔊</span> <span id="soundText">Zvuk zapnutý</span></button>
+            <button id="previewSound" type="button"><span aria-hidden="true">🔔</span> Vyzkoušet zvoneček</button>
+            <button id="fullBtn" type="button"><span aria-hidden="true">⛶</span> Celá obrazovka</button>
+            <div class="menu-divider"></div>
+            <button id="supportLink" type="button" class="support-link" disabled aria-label="Podpora projektu brzy k dispozici"><span aria-hidden="true">☕</span> Podpořit projekt <span class="menu-soon">brzy</span></button>
+          </nav>
+        </div>
       </div>
-      <div class="actions" aria-label="Ovládání časovače">
-        <button class="action primary" id="startPause" type="button" aria-label="Spustit čas" title="Spustit čas"><span id="startIcon" aria-hidden="true">▶</span><span id="startText" class="sr-only">Spustit čas</span></button>
-        <button class="action secondary" id="reset" type="button" aria-label="Znovu" title="Znovu"><span aria-hidden="true">↻</span></button>
-      </div>
-      <div class="top-extras"><button class="icon-button" id="soundBtn" aria-label="Vypnout zvuk" title="Zapnout nebo vypnout závěrečný zvuk">🔊</button><button class="icon-button" id="previewSound" aria-label="Vyzkoušet zvonění" title="Poslechnout závěrečný zvoneček">🔔</button><button class="icon-button" id="fullBtn" aria-label="Celá obrazovka" title="Celá obrazovka">⛶</button></div>
     </header>
     <div class="theme-modal" id="presetModal" hidden>
-      <section class="theme-dialog preset-dialog" role="dialog" aria-modal="true" aria-labelledby="presetTitle">
-        <div class="theme-dialog-header"><h2 id="presetTitle">Předvolené časy ⏱️</h2><button class="modal-close" id="closePresets" type="button" aria-label="Zavřít předvolby">×</button></div>
+      <section class="theme-dialog preset-dialog" role="dialog" aria-modal="true" aria-labelledby="presetDialogTitle" aria-describedby="presetDialogDesc">
+        <div class="theme-dialog-header">
+          <div><h2 id="presetDialogTitle">Předvolené časy ⏱️</h2><p id="presetDialogDesc">Vyber délku odpočítávání.</p></div>
+          <button type="button" class="modal-close" id="closePresets" aria-label="Zavřít předvolby">×</button>
+        </div>
     <nav class="presets preset-grid" aria-label="Rychlé nastavení času">
       <button class="preset" data-minutes="1">1 min</button><button class="preset" data-minutes="2">2 min</button><button class="preset" data-minutes="5">5 min</button><button class="preset" data-minutes="10">10 min</button><button class="preset" data-minutes="15">15 min</button><button class="preset active" data-minutes="20">20 min</button><button class="preset" data-minutes="25">25 min</button><button class="preset" data-minutes="30">30 min</button><button class="preset" data-minutes="45">45 min</button><button class="preset" data-minutes="60">60 min</button>
     </nav>
@@ -821,15 +897,6 @@
       </aside>
       </div>
 
-      <div class="quick-tools">
-        <button type="button" class="theme-trigger preset-trigger" id="presetTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="presetModal"><span class="trigger-emoji">⏱️</span><span class="trigger-label">Předvolené časy</span><span class="trigger-caret">▾</span></button>
-        <div class="theme-picker">
-      <button class="theme-trigger" type="button" id="themeTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeModal">
-        <span class="trigger-emoji" id="triggerEmoji" aria-hidden="true">🌈</span>
-        <span id="triggerLabel" class="trigger-label">Motivy · Duha</span><span class="trigger-caret" aria-hidden="true">▾</span>
-      </button>
-    </div>
-      </div>
       <span class="sr-only" id="statusText" role="status" aria-live="polite">Jak duha mizí, čas utíká. 🦄</span>
     </main>
   </div>
@@ -843,7 +910,7 @@
   const label = $('remainingLabel'), message = $('clockMessage'), status = $('statusText');
   const btn = $('startPause'), btnIcon = $('startIcon'), btnText = $('startText');
   const finishedOverlay = $('confetti'), endpoint = $('movingUnicorn'), sector = $('sectorPath');
-  let theme = 'rainbow';
+  let theme = 'dino';
   const sceneThemes = {
     dino: {
       svg: $('dinoClock'), fill: $('dinoFillRect'), time: $('dinoTime'), progress: $('dinoProgress'),
@@ -1221,7 +1288,6 @@
   });
 
   const allThemes = [
-    {id:'rainbow', label:'Duha', emoji:'🌈'},
     {id:'dino', label:'Dinosaurus', emoji:'🦕'},
     {id:'unicorn', label:'Jednorožec', emoji:'🦄'},
     {id:'rocket', label:'Raketa', emoji:'🚀'},
@@ -1232,8 +1298,25 @@
     {id:'firetruck', label:'Hasiči', emoji:'🚒'},
     {id:'ocean', label:'Mořský svět', emoji:'🐳'},
     {id:'princess', label:'Princezna', emoji:'👸'},
-    {id:'knight', label:'Rytíř', emoji:'🛡️'}
+    {id:'knight', label:'Rytíř', emoji:'🛡️'},
+    {id:'rainbow', label:'Duha · ciferník', emoji:'🌈'}
   ];
+  const menuTrigger = $('menuTrigger');
+  const mainMenu = $('mainMenu');
+  function closeMenu(restoreFocus=false){
+    if(mainMenu.hidden)return;
+    mainMenu.hidden=true;
+    menuTrigger.setAttribute('aria-expanded','false');
+    if(restoreFocus)menuTrigger.focus();
+  }
+  menuTrigger.addEventListener('click',()=>{
+    mainMenu.hidden=!mainMenu.hidden;
+    menuTrigger.setAttribute('aria-expanded',String(!mainMenu.hidden));
+  });
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.menu-wrap'))closeMenu();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!mainMenu.hidden){e.preventDefault();closeMenu(true);}
+  });
   const themeTrigger = $('themeTrigger');
   const themeModal = $('themeModal');
   const presetModal = $('presetModal');
@@ -1274,6 +1357,7 @@
     }
   }
   function openThemeDialog(){
+    closeMenu();
     if(!presetModal.hidden)closePresetDialog();
     favoritesOnly=false;renderThemeOptions();themeModal.hidden=false;document.body.classList.add('theme-modal-open');
     themeTrigger.setAttribute('aria-expanded','true');$('closeThemes').focus();
@@ -1281,10 +1365,23 @@
   function closeThemeDialog(){
     if(themeModal.hidden)return;
     themeModal.hidden=true;document.body.classList.remove('theme-modal-open');
-    themeTrigger.setAttribute('aria-expanded','false');themeTrigger.focus();
+    themeTrigger.setAttribute('aria-expanded','false');menuTrigger.focus();
   }
-  function openPresetDialog(){presetModal.hidden=false;document.body.classList.add('theme-modal-open');presetTrigger.setAttribute('aria-expanded','true');$('closePresets').focus();}
-  function closePresetDialog(){if(presetModal.hidden)return;presetModal.hidden=true;document.body.classList.remove('theme-modal-open');presetTrigger.setAttribute('aria-expanded','false');presetTrigger.focus();}
+  function openPresetDialog(){
+    closeMenu();
+    if(!themeModal.hidden)closeThemeDialog();
+    presetModal.hidden=false;
+    document.body.classList.add('theme-modal-open');
+    presetTrigger.setAttribute('aria-expanded','true');
+    $('closePresets').focus();
+  }
+  function closePresetDialog(){
+    if(presetModal.hidden)return;
+    presetModal.hidden=true;
+    document.body.classList.remove('theme-modal-open');
+    presetTrigger.setAttribute('aria-expanded','false');
+    menuTrigger.focus();
+  }
   presetTrigger.addEventListener('click',openPresetDialog);
   $('closePresets').addEventListener('click',closePresetDialog);
   presetModal.addEventListener('click',e=>{if(e.target===presetModal)closePresetDialog();});
@@ -1294,10 +1391,11 @@
   $('showAllThemes').addEventListener('click',()=>{favoritesOnly=false;renderThemeOptions();});
   $('showFavoriteThemes').addEventListener('click',()=>{favoritesOnly=true;renderThemeOptions();});
   document.addEventListener('keydown',e=>{
-    if(themeModal.hidden && presetModal.hidden)return;
-    if(e.key==='Escape'){e.preventDefault();if(!presetModal.hidden)closePresetDialog();else closeThemeDialog();}
+    const openModal=!themeModal.hidden?themeModal:(!presetModal.hidden?presetModal:null);
+    if(!openModal)return;
+    if(e.key==='Escape'){e.preventDefault();if(openModal===themeModal)closeThemeDialog();else closePresetDialog();}
     if(e.key==='Tab'){
-      const els=[...(!themeModal.hidden?themeModal:presetModal).querySelectorAll('button:not(:disabled)')].filter(el=>el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+      const els=[...openModal.querySelectorAll('button:not(:disabled)')].filter(el=>el.offsetWidth||el.offsetHeight||el.getClientRects().length);
       if(!els.length)return;
       if(e.shiftKey && document.activeElement===els[0]){e.preventDefault();els.at(-1).focus();}
       else if(!e.shiftKey && document.activeElement===els.at(-1)){e.preventDefault();els[0].focus();}
@@ -1309,7 +1407,7 @@
     if(e.code!=='Space'&&e.key!==' ')return;
     if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey || !themeModal.hidden || !presetModal.hidden)return;
     const active=document.activeElement;
-    if(active&&(active.isContentEditable||active.matches('textarea, select, input:not([type="range"])')))return;
+    if(active&&(active.isContentEditable||active.matches('textarea, select, button, a, input:not([type="range"])')))return;
     e.preventDefault();
     if(!e.repeat)toggle();
   },true);
@@ -1317,7 +1415,7 @@
   document.querySelectorAll('[data-minutes]').forEach(button=>button.addEventListener('click',()=>{setMinutes(button.dataset.minutes);closePresetDialog();}));
   btn.addEventListener('click',toggle);
   $('reset').addEventListener('click',()=>setMinutes(selected));
-  $('soundBtn').addEventListener('click',()=>{muted=!muted;if(!muted)unlockAudio();$('soundBtn').textContent=muted?'🔇':'🔊';$('soundBtn').setAttribute('aria-label',muted?'Zapnout zvuk':'Vypnout zvuk');});
+  $('soundBtn').addEventListener('click',()=>{muted=!muted;if(!muted)unlockAudio();$('soundIcon').textContent=muted?'🔇':'🔊';$('soundText').textContent=muted?'Zvuk vypnutý':'Zvuk zapnutý';$('soundBtn').setAttribute('aria-label',muted?'Zapnout zvuk':'Vypnout zvuk');});
   $('fullBtn').addEventListener('click',async()=>{
     try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(e){}
   });
@@ -1326,6 +1424,7 @@
   window.addEventListener('pageshow',()=>{if(running&&!document.hidden)keepScreenAwake();});
   calibrateSceneBounds();
   setMinutes(20);
+  setTheme('dino');
 })();
 </script>
 </body>
