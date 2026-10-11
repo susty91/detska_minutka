@@ -4,15 +4,15 @@ Vizuální časovač pro malé děti – obrázky se odspodu postupně vybarvuj�
 
 ## Motivy
 
-12 obrázků: **duha, dinosaurus, jednorožec, vesmírná raketa, bagr, žirafa, autíčko, traktor, hasičské auto, mořský svět, princezna a rytíř**. Všechny motivy jsou v jedné nabídce; srdíčkem si lze označit oblíbené.
+12 motivů: **dinosaurus, jednorožec, vesmírná raketa, bagr, žirafa, autíčko, traktor, hasičské auto, mořský svět, princezna, rytíř a duha**. Výchozí je dinosaurus, duha s nastavitelným ciferníkem je poslední. Motivy jsou v burger menu; srdíčkem si lze označit oblíbené.
 
 Ilustrace jsou vlastní SVG kresby přímo v aplikaci, bez externích obrázků. Ilustrace jsou optimalizované pro odpočítávání: barevné vyplnění postupuje podle skutečné výšky kresby, takže poslední horní detaily získají barvu těsně před koncem.
 
 ## Použití
 
 - Otevřete [index.html](./index.html) v prohlížeči.
-- Rozsah je **1–60 minut**. Čas nastavíš posuvníkem nebo tlačítkem **Předvolené časy** pod ovládáním časovače (1, 2, 5, 10, 15, 20, 25, 30, 45, 60 minut).
-- Tlačítko **Motivy** pod ovládáním časovače otevře obrázkovou nabídku.
+- Rozsah je **1–60 minut**. Posuvník, ▶ / ⏸, ↻ a ☰ jsou v jedné horní liště. V nabídce ☰ najdeš i **Předvolené časy** (1, 2, 5, 10, 15, 20, 25, 30, 45, 60 minut).
+- Výběr **Motivy** najdeš v burger menu ☰. Stejné menu obsahuje přepínání zvuku, vyzkoušení zvonečku a přepnutí na celou obrazovku.
 - Ikony **▶ / ⏸ / ↻** pod posuvníkem spouštějí, pozastavují a restartují odpočítávání.
 - Konec oznámí animace a příjemná zvonkohra (lze vypnout nebo vyzkoušet).
 - Duhový motiv navíc umožňuje změnit měřítko ciferníku.
@@ -23,4 +23,4 @@ Funguje na počítači, tabletu i telefonu a nepotřebuje přihlášení, datab�
 **Upozornění ke zvuku:** Mobilní prohlížeče někdy omezují zvuk na pozadí. Pokud telefon aplikaci uspí, závěrečné upozornění se může přehrát až po návratu do otevřené stránky.
 
 
-Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.
+Projekt je statický. Pro sdílení stačí poslat URL nasazené aplikace.\n\nFavicon je v souboru `favicon.svg`. Nabídka obsahuje také připravenou, dočasně neaktivní položku „Podpořit projekt“. Jakmile bude založený profil Buy Me a Coffee, je možné doplnit jeho přesný odkaz.
