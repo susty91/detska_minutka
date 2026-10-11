@@ -1,6 +1,7 @@
 # Dětská minutka 🌈
 
 Vizuální časovač pro malé děti – obrázky se odspodu postupně vybarvují a pomáhají dětem pochopit, kolik času ještě zbývá.
+Motiv Duha - Ciferník je potom klasickou reprezentací analogových hodin, s možností úpravy minut na ciferníku. 
 
 ## Motivy
 
