@@ -1,0 +1,7 @@
+# Generated or local files
+.DS_Store
+.vscode/
+.idea/
+.vercel/
+node_modules/
+*.log
