@@ -46,3 +46,12 @@ Na iPhonu slouží `apple-touch-icon.png` (180 × 180 px), na Androidu `manifest
 Po prvním otevření **s internetem** se přes `sw.js` (service worker) uloží základní stránka, SVG motivy zabudované v HTML, ikony a manifest. Po dokončení prvotního uložení lze minutku spouštět bez internetu, včetně zástupce na ploše telefonu. Nevyžaduje backend. Na iOS může být cache časem automaticky odstraněna, proto je vhodné aplikaci občas otevřít online.
 
 Spodní posuvník je odsazený od levého okraje. Dotykový výpočet respektuje skutečnou polohu středu jezdce a umožňuje nastavit i **1 minutu** bez sjíždění prstu ze skla. Běžný režim má nyní obnovování na **24× za sekundu**; volitelný úsporný režim nadále **1× za sekundu**.
+
+
+☕ Podpořit Dětskou minutku
+
+Dětská minutka je a zůstane zdarma pro všechny děti a rodiče.
+
+Pokud vám doma pomáhá a chcete podpořit její další vývoj, můžete nám dobrovolně koupit kávu.
+
+Děkujeme! ❤️
